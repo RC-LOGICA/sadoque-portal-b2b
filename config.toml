@@ -1,0 +1,19 @@
+[theme]
+# Define o tema base como escuro
+base = "dark"
+
+# Cor principal (usada nos botões de destaque, checkbox e slider)
+# Usando o mesmo "verde destaque" do seu sistema Desktop
+primaryColor = "#2a9d8f"
+
+# Cor do fundo principal da página (Azul Marinho Profundo)
+backgroundColor = "#0B132B"
+
+# Cor do fundo secundário (Menu lateral, fundo de gráficos, caixas)
+secondaryBackgroundColor = "#162A45"
+
+# Cor do texto principal
+textColor = "#ffffff"
+
+# Fonte do sistema
+font = "sans serif"
