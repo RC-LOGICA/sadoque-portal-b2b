@@ -54,7 +54,6 @@ def buscar_dados_cargas(cnpj_cliente):
     try:
         conn = iniciar_ligacao()
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        # Adicionei a coluna 'tipo_entrega' e mudei o nome para 'Status' para o nosso gráfico
         cursor.execute("""
             SELECT 
                 numero_nf as "NF",
@@ -105,10 +104,8 @@ if 'nome_empresa' not in st.session_state: st.session_state['nome_empresa'] = No
 # ECRÃ DE LOGIN
 # ==============================================================================
 def ecra_login():
-    # --- CSS MÁGICO PARA O EFEITO DE CARTÃO, LOGO E LIMPEZA VISUAL ---
     estilo_caixa_login = """
         <style>
-        /* Caixa flutuante do formulário */
         [data-testid="stForm"] {
             background-color: #1F3A5F !important;
             border: 1px solid #2C5282 !important;
@@ -117,12 +114,10 @@ def ecra_login():
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
         }
         
-        /* 1. Sombra 3D projetada perfeitamente no formato da sua Logo */
         [data-testid="stImage"] img {
             filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.6)) !important;
         }
         
-        /* 2. Esconde definitivamente a mensagem "Press Enter to submit form" */
         div[data-testid="InputInstructions"], 
         div[data-testid="stInputInstructions"] {
             display: none !important;
@@ -131,17 +126,12 @@ def ecra_login():
         </style>
     """
     st.markdown(estilo_caixa_login, unsafe_allow_html=True)
-    
-    # Empurra tudo um pouco mais para baixo para centrar no ecrã
     st.markdown("<br><br>", unsafe_allow_html=True)
     
-    # Ajuste das colunas principais
     col1, col2, col3 = st.columns([1.2, 1.0, 1.2])
     
     with col2:
         with st.form("form_login"):
-            
-            # --- LOGOTIPO COM SOMBRA ---
             c1, c_img, c2 = st.columns([1, 1.5, 1])
             with c_img:
                 caminho_logo = "assets/logo.png" 
@@ -152,7 +142,6 @@ def ecra_login():
             
             st.markdown("<p style='text-align: center; color: #a3b1c6; font-size: 14px; margin-top: 10px; margin-bottom: 20px;'>Bem-vindo ao sistema de rastreio corporativo.</p>", unsafe_allow_html=True)
             
-            # --- CAMPOS DE LOGIN LIMPOS ---
             username = st.text_input("Utilizador")
             password = st.text_input("Palavra-passe", type="password")
             
@@ -177,24 +166,11 @@ def ecra_login():
 # ECRÃ PRINCIPAL (DASHBOARD COMPLETO)
 # ==============================================================================
 def ecra_dashboard():
-    # --- MENU LATERAL ---
-    st.sidebar.title(f"🏢 {st.session_state['nome_empresa']}")
-    st.sidebar.markdown(f"**CNPJ:** {st.session_state['cnpj_ativo']}")
-    st.sidebar.markdown("---")
-    if st.sidebar.button("🔄 Atualizar Dados"):
-        buscar_dados_cargas.clear()
-        st.rerun()
-    st.sidebar.markdown("---")
-    if st.sidebar.button("🚪 Terminar Sessão"):
-        st.session_state.clear()
-        st.rerun()
-        
     # =====================================================================
     # ESTILOS CSS DO DASHBOARD (CRIAR CAIXAS/CARDS)
     # =====================================================================
     estilos_dashboard = """
         <style>
-        /* Transforma os números soltos em Cartões Elevados (Caixas mais claras) */
         [data-testid="stMetric"] {
             background-color: #1F3A5F !important;
             border-left: 5px solid #2a9d8f !important; 
@@ -203,7 +179,6 @@ def ecra_dashboard():
             box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
         }
         
-        /* Centraliza verticalmente o cabeçalho */
         [data-testid="column"] {
             align-self: center;
         }
@@ -214,13 +189,11 @@ def ecra_dashboard():
     # =====================================================================
     # CABEÇALHO CO-BRANDING (SADOQUE + CLIENTE)
     # =====================================================================
-    # Colunas simétricas: Sadoque (Esquerda), Espaço (Centro), Cliente (Direita)
     col_sad, col_centro, col_cli = st.columns([1, 2, 1])
     
     with col_sad:
         caminho_logo_sadoque = "assets/logo.png"
         if os.path.exists(caminho_logo_sadoque):
-            # Aumentámos a largura para 140 para equilibrar com a logo do cliente
             st.image(caminho_logo_sadoque, width=140) 
         else:
             st.markdown("<h3 style='color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
@@ -233,7 +206,6 @@ def ecra_dashboard():
         st.markdown(f"<div style='text-align: right; margin-bottom: 5px; color: #a3b1c6;'>Seja bem-vindo,</div>", unsafe_allow_html=True)
         
         if os.path.exists(caminho_logo_cliente):
-            # Mantém a proporção correta para a logo da Esmaltec
             c_vazia, c_img_cli = st.columns([0.5, 1.5])
             with c_img_cli:
                 st.image(caminho_logo_cliente, use_container_width=True)
@@ -251,6 +223,12 @@ def ecra_dashboard():
     if df_cargas is None: st.stop()
     if df_cargas.empty:
         st.info("Ainda não existem notas fiscais registadas para o seu CNPJ no sistema.")
+        
+        # Se não houver cargas, ainda precisamos de dar a opção de terminar sessão
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("🚪 Terminar Sessão"):
+            st.session_state.clear()
+            st.rerun()
         return
 
     # --- FILTROS ---
@@ -270,6 +248,20 @@ def ecra_dashboard():
     if cidade_selecionada != "Todas":
         df_filtrado = df_filtrado[df_filtrado["Cidade de Destino"] == cidade_selecionada]
 
+    # =====================================================================
+    # BOTÕES DE AÇÃO (POR BAIXO DOS FILTROS)
+    # =====================================================================
+    st.markdown("<br>", unsafe_allow_html=True)
+    col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 3])
+    with col_btn1:
+        if st.button("🔄 Atualizar Dados", use_container_width=True):
+            buscar_dados_cargas.clear()
+            st.rerun()
+    with col_btn2:
+        if st.button("🚪 Terminar Sessão", use_container_width=True):
+            st.session_state.clear()
+            st.rerun()
+
     # --- MÉTRICAS ---
     st.markdown("---")
     t_notas = len(df_filtrado)
@@ -285,13 +277,11 @@ def ecra_dashboard():
         col_graf1, col_graf2 = st.columns(2)
         with col_graf1:
             st.markdown("**Distribuição por Status**")
-            # Gráfico de Rosca (Donut)
             fig_status = px.pie(df_filtrado, names='Status', hole=0.4, color_discrete_sequence=px.colors.qualitative.Set2)
             st.plotly_chart(fig_status, use_container_width=True)
             
         with col_graf2:
             st.markdown("**Volume por Cidade (Top 10)**")
-            # Gráfico de Barras
             df_cidades = df_filtrado.groupby('Cidade de Destino')['Volumes'].sum().reset_index()
             df_cidades = df_cidades.sort_values(by='Volumes', ascending=False).head(10)
             fig_cidades = px.bar(df_cidades, x='Cidade de Destino', y='Volumes', color='Volumes', color_continuous_scale='Blues')
@@ -305,7 +295,6 @@ def ecra_dashboard():
         st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
         
         # FUNCIONALIDADE 2: BOTÃO DE EXPORTAÇÃO (Excel/CSV)
-        # Converte a tabela filtrada para CSV para download
         csv = df_filtrado.to_csv(index=False).encode('utf-8')
         st.download_button(
             label="📥 Descarregar Dados (CSV / Excel)",
@@ -329,19 +318,16 @@ def ecra_dashboard():
         else:
             st.success(f"**Histórico Oficial da NF: {nf_selecionada}**")
             
-            # Desenha a linha do tempo iterando sobre os resultados do banco de dados
             for index, row in df_historico.iterrows():
                 col_time1, col_time2 = st.columns([1, 4])
                 
                 with col_time1:
-                    # O evento mais recente (index 0) fica a verde, os restantes a cinzento
                     if index == 0:
                         st.markdown(f"🟢 **{row['data_hora']}**")
                     else:
                         st.markdown(f"⚪ *{row['data_hora']}*")
                         
                 with col_time2:
-                    # Trata o valor vazio ou 'nan' para ficar elegante no portal
                     cidade_exibicao = str(row['cidade_localizacao'])
                     if cidade_exibicao.lower() == 'nan' or cidade_exibicao.strip() == '' or cidade_exibicao.lower() == 'none':
                         cidade_exibicao = "Em Trânsito / Base"
