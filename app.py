@@ -12,7 +12,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# REMOÇÃO DO CABEÇALHO E RODAPÉ (Visual Profissional)
+# REMOÇÃO DO CABEÇALHO E RODAPÉ
 # ==============================================================================
 hide_streamlit_style = """
     <style>
@@ -75,23 +75,55 @@ def buscar_dados_cargas(cnpj_cliente):
 
 @st.cache_data(ttl=30)
 def buscar_historico_nf(numero_nf):
-    """Busca a linha do tempo completa de uma NF específica."""
     try:
         conn = iniciar_ligacao()
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute("""
-            SELECT status, cidade_localizacao, TO_CHAR(data_registro, 'DD/MM/YYYY HH24:MI') as data_hora
+            SELECT status, cidade_localizacao, observacao, TO_CHAR(data_registro, 'DD/MM/YYYY HH24:MI') as data_hora
             FROM rastreio_cargas
             WHERE numero_nf = %s
             ORDER BY data_registro DESC
         """, (str(numero_nf),))
-        
         registos = cursor.fetchall()
         if registos:
             return pd.DataFrame([dict(r) for r in registos])
         return pd.DataFrame()
     except Exception as e:
         return None
+
+# ==============================================================================
+# FUNÇÕES DO NOVO CHAT (MENSAGENS)
+# ==============================================================================
+def buscar_mensagens(nf, cnpj):
+    try:
+        conn = iniciar_ligacao()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cursor.execute("""
+            SELECT remetente, mensagem, TO_CHAR(data_envio, 'DD/MM HH24:MI') as data_formatada
+            FROM mensagens_cargas
+            WHERE numero_nf = %s AND cnpj_embarcador = %s
+            ORDER BY data_envio ASC
+        """, (str(nf), str(cnpj)))
+        registos = cursor.fetchall()
+        if registos:
+            return pd.DataFrame([dict(r) for r in registos])
+        return pd.DataFrame()
+    except Exception as e:
+        return pd.DataFrame()
+
+def salvar_mensagem(nf, cnpj, remetente, texto):
+    try:
+        conn = iniciar_ligacao()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO mensagens_cargas (numero_nf, cnpj_embarcador, remetente, mensagem, lida_sadoque)
+            VALUES (%s, %s, %s, %s, FALSE)
+        """, (str(nf), str(cnpj), remetente, texto))
+        conn.commit()
+        return True
+    except Exception as e:
+        st.error(f"Erro ao enviar mensagem: {e}")
+        return False
 
 # ==============================================================================
 # GESTÃO DE SESSÃO
@@ -113,23 +145,17 @@ def ecra_login():
             padding: 2.5rem !important;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
         }
-        
         [data-testid="stImage"] img {
             filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.6)) !important;
         }
-        
-        div[data-testid="InputInstructions"], 
-        div[data-testid="stInputInstructions"] {
-            display: none !important;
-            visibility: hidden !important;
+        div[data-testid="InputInstructions"], div[data-testid="stInputInstructions"] {
+            display: none !important; visibility: hidden !important;
         }
         </style>
     """
     st.markdown(estilo_caixa_login, unsafe_allow_html=True)
     st.markdown("<br><br>", unsafe_allow_html=True)
-    
     col1, col2, col3 = st.columns([1.2, 1.0, 1.2])
-    
     with col2:
         with st.form("form_login"):
             c1, c_img, c2 = st.columns([1, 1.5, 1])
@@ -141,14 +167,10 @@ def ecra_login():
                     st.markdown("<h3 style='text-align: center; color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
             
             st.markdown("<p style='text-align: center; color: #a3b1c6; font-size: 14px; margin-top: 10px; margin-bottom: 20px;'>Bem-vindo ao sistema de rastreio corporativo.</p>", unsafe_allow_html=True)
-            
             username = st.text_input("Utilizador")
             password = st.text_input("Palavra-passe", type="password")
-            
             st.markdown("<br>", unsafe_allow_html=True) 
-            
             btn_entrar = st.form_submit_button("Entrar no Sistema", use_container_width=True)
-            
             if btn_entrar:
                 if username and password:
                     dados_cliente = validar_login(username.lower().strip(), password.strip())
@@ -163,34 +185,22 @@ def ecra_login():
                     st.warning("Por favor, preencha todos os campos.")
 
 # ==============================================================================
-# ECRÃ PRINCIPAL (DASHBOARD COMPLETO)
+# ECRÃ PRINCIPAL (DASHBOARD)
 # ==============================================================================
 def ecra_dashboard():
-    # =====================================================================
-    # ESTILOS CSS DO DASHBOARD (CRIAR CAIXAS/CARDS)
-    # =====================================================================
     estilos_dashboard = """
         <style>
         [data-testid="stMetric"] {
-            background-color: #1F3A5F !important;
-            border-left: 5px solid #2a9d8f !important; 
-            border-radius: 8px !important;
-            padding: 15px 20px !important;
+            background-color: #1F3A5F !important; border-left: 5px solid #2a9d8f !important; 
+            border-radius: 8px !important; padding: 15px 20px !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
         }
-        
-        [data-testid="column"] {
-            align-self: center;
-        }
+        [data-testid="column"] { align-self: center; }
         </style>
     """
     st.markdown(estilos_dashboard, unsafe_allow_html=True)
 
-    # =====================================================================
-    # CABEÇALHO CO-BRANDING (SADOQUE + CLIENTE)
-    # =====================================================================
     col_sad, col_centro, col_cli = st.columns([1, 2, 1])
-    
     with col_sad:
         caminho_logo_sadoque = "assets/logo.png"
         if os.path.exists(caminho_logo_sadoque):
@@ -202,9 +212,7 @@ def ecra_dashboard():
         nome_cliente_ativo = st.session_state.get('nome_empresa', 'Cliente')
         cnpj_ativo = st.session_state.get('cnpj_ativo', '')
         caminho_logo_cliente = f"assets/{cnpj_ativo}.png"
-        
         st.markdown(f"<div style='text-align: right; margin-bottom: 5px; color: #a3b1c6;'>Seja bem-vindo,</div>", unsafe_allow_html=True)
-        
         if os.path.exists(caminho_logo_cliente):
             c_vazia, c_img_cli = st.columns([0.5, 1.5])
             with c_img_cli:
@@ -212,9 +220,6 @@ def ecra_dashboard():
         else:
             st.markdown(f"<div style='text-align: right; font-weight: bold; font-size: 18px; color: #ffffff;'>{nome_cliente_ativo}</div>", unsafe_allow_html=True)
 
-    # =====================================================================
-    # TÍTULO CENTRALIZADO E LINHA DIVISÓRIA
-    # =====================================================================
     st.markdown("<div style='text-align: center; color: #a3b1c6; font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 5px;'>Inteligência Logística e Rastreio (B2B)</div>", unsafe_allow_html=True)
     st.markdown("---")
     
@@ -223,15 +228,12 @@ def ecra_dashboard():
     if df_cargas is None: st.stop()
     if df_cargas.empty:
         st.info("Ainda não existem notas fiscais registadas para o seu CNPJ no sistema.")
-        
-        # Se não houver cargas, ainda precisamos de dar a opção de terminar sessão
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🚪 Terminar Sessão"):
             st.session_state.clear()
             st.rerun()
         return
 
-    # --- FILTROS ---
     st.markdown("### 🔍 Filtros")
     col_filtro1, col_filtro2 = st.columns(2)
     with col_filtro1:
@@ -248,9 +250,6 @@ def ecra_dashboard():
     if cidade_selecionada != "Todas":
         df_filtrado = df_filtrado[df_filtrado["Cidade de Destino"] == cidade_selecionada]
 
-    # =====================================================================
-    # BOTÕES DE AÇÃO (POR BAIXO DOS FILTROS)
-    # =====================================================================
     st.markdown("<br>", unsafe_allow_html=True)
     col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 3])
     with col_btn1:
@@ -262,7 +261,6 @@ def ecra_dashboard():
             st.session_state.clear()
             st.rerun()
 
-    # --- MÉTRICAS ---
     st.markdown("---")
     t_notas = len(df_filtrado)
     t_volumes = int(df_filtrado["Volumes"].fillna(0).sum()) if "Volumes" in df_filtrado.columns else 0
@@ -272,14 +270,12 @@ def ecra_dashboard():
     c3.metric("Status Operacional", "Verde 🟢")
     st.markdown("---")
     
-    # FUNCIONALIDADE 1: GRÁFICOS (DASHBOARDS)
     if not df_filtrado.empty:
         col_graf1, col_graf2 = st.columns(2)
         with col_graf1:
             st.markdown("**Distribuição por Status**")
             fig_status = px.pie(df_filtrado, names='Status', hole=0.4, color_discrete_sequence=px.colors.qualitative.Set2)
             st.plotly_chart(fig_status, use_container_width=True)
-            
         with col_graf2:
             st.markdown("**Volume por Cidade (Top 10)**")
             df_cidades = df_filtrado.groupby('Cidade de Destino')['Volumes'].sum().reset_index()
@@ -287,23 +283,17 @@ def ecra_dashboard():
             fig_cidades = px.bar(df_cidades, x='Cidade de Destino', y='Volumes', color='Volumes', color_continuous_scale='Blues')
             st.plotly_chart(fig_cidades, use_container_width=True)
 
-    # --- TABELA DE RASTREIO ---
     st.subheader("Central de Rastreio")
     if df_filtrado.empty:
         st.warning("Nenhuma carga encontrada.")
     else:
         st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
-        
-        # FUNCIONALIDADE 2: BOTÃO DE EXPORTAÇÃO (Excel/CSV)
         csv = df_filtrado.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="📥 Descarregar Dados (CSV / Excel)",
-            data=csv,
-            file_name=f"relatorio_cargas_{st.session_state['nome_empresa']}.csv",
-            mime="text/csv",
+            label="📥 Descarregar Dados (CSV / Excel)", data=csv,
+            file_name=f"relatorio_cargas_{st.session_state['nome_empresa']}.csv", mime="text/csv",
         )
 
-    # FUNCIONALIDADE 3: TIMELINE REAL (VISÃO DETALHADA)
     st.markdown("---")
     st.subheader("🔎 Detalhes do Rastreio (Linha do Tempo)")
     
@@ -312,32 +302,77 @@ def ecra_dashboard():
     
     if nf_selecionada != "Selecione uma NF...":
         df_historico = buscar_historico_nf(nf_selecionada)
-        
         if df_historico is None or df_historico.empty:
             st.warning(f"Ainda não existem registos de movimento para a NF {nf_selecionada}.")
         else:
             st.success(f"**Histórico Oficial da NF: {nf_selecionada}**")
-            
             for index, row in df_historico.iterrows():
                 col_time1, col_time2 = st.columns([1, 4])
-                
                 with col_time1:
                     if index == 0:
                         st.markdown(f"🟢 **{row['data_hora']}**")
                     else:
                         st.markdown(f"⚪ *{row['data_hora']}*")
-                        
                 with col_time2:
                     cidade_exibicao = str(row['cidade_localizacao'])
-                    if cidade_exibicao.lower() == 'nan' or cidade_exibicao.strip() == '' or cidade_exibicao.lower() == 'none':
+                    if cidade_exibicao.lower() in ['nan', 'none', 'nulo', '']:
                         cidade_exibicao = "Em Trânsito / Base"
+
+                    obs = str(row.get('observacao', ''))
+                    texto_obs = ""
+                    if obs.lower() not in ['nan', 'none', 'nulo', '']:
+                        texto_obs = f"<br>📝 <span style='color:#a3b1c6; font-size:14px;'><i>Obs: {obs}</i></span>"
 
                     if index == 0:
                         st.markdown(f"**Status Atual: {row['status']}**")
-                        st.markdown(f"📍 *{cidade_exibicao}*")
+                        st.markdown(f"📍 *{cidade_exibicao}*{texto_obs}", unsafe_allow_html=True)
                     else:
                         st.markdown(f"*{row['status']}*")
-                        st.markdown(f"📍 *{cidade_exibicao}*")
+                        st.markdown(f"📍 *{cidade_exibicao}*{texto_obs}", unsafe_allow_html=True)
+
+            # ==============================================================================
+            # NOVO BLOCO: CHAT DE ATENDIMENTO B2B
+            # ==============================================================================
+            st.markdown("---")
+            st.subheader("💬 Canal de Atendimento (Chat)")
+            
+            # Exibir histórico de mensagens desta NF
+            df_mensagens = buscar_mensagens(nf_selecionada, st.session_state['cnpj_ativo'])
+            
+            if not df_mensagens.empty:
+                for _, msg_row in df_mensagens.iterrows():
+                    if msg_row['remetente'] == 'Cliente':
+                        # Alinhado à direita (Cliente Esmaltec)
+                        st.markdown(f"""
+                            <div style='background-color:#162A45; padding:10px 15px; border-radius:10px; margin-bottom:10px; margin-left: 20%; text-align:right; border-right: 4px solid #2a9d8f;'>
+                                <span style='font-size:12px; color:#a3b1c6;'>{st.session_state['nome_empresa']} • {msg_row['data_formatada']}</span><br>
+                                <span style='color:#ffffff; font-size:16px;'>{msg_row['mensagem']}</span>
+                            </div>
+                        """, unsafe_allow_html=True)
+                    else:
+                        # Alinhado à esquerda (Sadoque)
+                        st.markdown(f"""
+                            <div style='background-color:#1F3A5F; padding:10px 15px; border-radius:10px; margin-bottom:10px; margin-right: 20%; text-align:left; border-left: 4px solid #ffb703;'>
+                                <span style='font-size:12px; color:#a3b1c6;'>Sadoque Transportes • {msg_row['data_formatada']}</span><br>
+                                <span style='color:#ffffff; font-size:16px;'>{msg_row['mensagem']}</span>
+                            </div>
+                        """, unsafe_allow_html=True)
+            else:
+                st.info("Nenhuma mensagem registada para esta carga. Caso tenha dúvidas, escreva abaixo.")
+
+            # Caixa de Envio de Nova Mensagem
+            with st.form("form_chat", clear_on_submit=True):
+                nova_msg = st.text_area("Digite a sua dúvida ou mensagem:", height=100, placeholder="Ex: Há previsão de chegada para hoje à tarde?")
+                btn_enviar_msg = st.form_submit_button("📤 Enviar Mensagem", use_container_width=True)
+                
+                if btn_enviar_msg:
+                    if nova_msg.strip():
+                        sucesso = salvar_mensagem(nf_selecionada, st.session_state['cnpj_ativo'], 'Cliente', nova_msg.strip())
+                        if sucesso:
+                            st.success("Mensagem enviada com sucesso! A Sadoque irá responder brevemente.")
+                            st.rerun()
+                    else:
+                        st.warning("A mensagem não pode estar vazia.")
 
 # ==============================================================================
 # CONTROLO DE FLUXO
