@@ -15,7 +15,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Fundo Cinza Chumbo p/ Contraste)
+# DESIGN SYSTEM PROFISSIONAL (Fundo Cinza Chumbo + Botões Estilizados)
 # ==============================================================================
 estilo_flutuante = """
     <style>
@@ -23,7 +23,6 @@ estilo_flutuante = """
     [data-testid="stHeader"], footer { display: none !important; }
 
     /* 2. FUNDO GERAL DO PORTAL (Cinza Chumbo / Slate) */
-    /* Cria contraste com os cartões azuis sem apagar os textos brancos */
     .stApp {
         background-color: #1C2434 !important;
     }
@@ -38,7 +37,41 @@ estilo_flutuante = """
         padding-bottom: 3rem !important;
     }
 
-    /* 4. RESPONSIVIDADE PARA CELULAR */
+    /* 4. CORREÇÃO DE BOTÕES E FORMULÁRIOS (Mesmo estilo dos inputs) */
+    /* Botões normais e botão de submit do formulário de chat */
+    [data-testid="stButton"] button,
+    [data-testid="stFormSubmitButton"] button {
+        background-color: #0B132B !important;
+        border: 1px solid #4a6fa5 !important;
+        border-radius: 6px !important;
+        color: #ffffff !important;
+        transition: all 0.3s ease;
+    }
+
+    /* Efeito ao passar o rato (hover) nos botões */
+    [data-testid="stButton"] button:hover,
+    [data-testid="stFormSubmitButton"] button:hover {
+        border-color: #2a9d8f !important;
+        color: #2a9d8f !important;
+        background-color: #0B132B !important; /* Impede que fique branco */
+    }
+    
+    /* Fundo da área de texto do Chat */
+    [data-testid="stTextArea"] div[data-baseweb="base-input"] {
+        background-color: #0B132B !important;
+        border: 1px solid #4a6fa5 !important;
+        border-radius: 6px !important;
+    }
+    [data-testid="stTextArea"] textarea {
+        background-color: transparent !important;
+        color: #ffffff !important;
+    }
+    [data-testid="stTextArea"] div[data-baseweb="base-input"]:focus-within {
+        border-color: #2a9d8f !important;
+        box-shadow: 0 0 5px rgba(42, 157, 143, 0.5) !important;
+    }
+
+    /* 5. RESPONSIVIDADE PARA CELULAR */
     @media (max-width: 768px) {
         .block-container {
             padding-top: 1.5rem !important;
@@ -361,11 +394,16 @@ def ecra_dashboard():
     """
     st.markdown(estilos_dashboard, unsafe_allow_html=True)
 
-    col_sad, col_centro, col_cli = st.columns([1, 2, 1])
+    # ---------------------------------------------------------
+    # LAYOUT DAS LOGOS - Proporções ajustadas (0.7 para a Sadoque)
+    # ---------------------------------------------------------
+    col_sad, col_centro, col_cli = st.columns([0.7, 2, 1.3])
+    
     with col_sad:
         caminho_logo_sadoque = "assets/logo.png"
         if os.path.exists(caminho_logo_sadoque):
-            st.image(caminho_logo_sadoque, width=140) 
+            # A logo da Sadoque agora respeita o tamanho menor da sua coluna
+            st.image(caminho_logo_sadoque, use_container_width=True) 
         else:
             st.markdown("<h3 style='color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
 
@@ -373,11 +411,11 @@ def ecra_dashboard():
         nome_cliente_ativo = st.session_state.get('nome_empresa', 'Cliente')
         cnpj_ativo = st.session_state.get('cnpj_ativo', '')
         caminho_logo_cliente = f"assets/{cnpj_ativo}.png"
+        
         st.markdown(f"<div style='text-align: right; margin-bottom: 5px; color: #a3b1c6;'>Seja bem-vindo,</div>", unsafe_allow_html=True)
         if os.path.exists(caminho_logo_cliente):
-            c_vazia, c_img_cli = st.columns([0.5, 1.5])
-            with c_img_cli:
-                st.image(caminho_logo_cliente, use_container_width=True)
+            # A logo do cliente tem mais espaço para se expandir
+            st.image(caminho_logo_cliente, use_container_width=True)
         else:
             st.markdown(f"<div style='text-align: right; font-weight: bold; font-size: 18px; color: #ffffff;'>{nome_cliente_ativo}</div>", unsafe_allow_html=True)
 
