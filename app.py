@@ -15,7 +15,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção Universal de Inputs)
+# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção Extrema de Inputs)
 # ==============================================================================
 estilo_flutuante = """
     <style>
@@ -41,30 +41,54 @@ estilo_flutuante = """
         border: 1px solid #2c4970 !important;
     }
 
-    /* 4. CORREÇÃO UNIVERSAL DAS CAIXAS DE INPUT E CALENDÁRIO */
-    div[data-baseweb="input"], 
-    div[data-baseweb="select"] > div,
-    div[data-baseweb="base-input"] {
+    /* 4. CORREÇÃO EXTREMA DAS CAIXAS DE INPUT E CALENDÁRIO */
+    /* Ataca diretamente a tag interna de texto e os containers do Streamlit Cloud */
+    [data-testid="stTextInput"] div[data-baseweb="base-input"],
+    [data-testid="stTextInput"] input,
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+    [data-testid="stDateInput"] div[data-baseweb="base-input"],
+    [data-testid="stDateInput"] input {
         background-color: #060B14 !important;
-        border: 1px solid #4a6fa5 !important;
+        color: #ffffff !important;
         border-radius: 8px !important;
-        color: #ffffff !important;
     }
     
-    input {
-        color: #ffffff !important;
-        -webkit-text-fill-color: #ffffff !important;
+    /* Aplica a borda apenas no container exterior para não duplicar */
+    [data-testid="stTextInput"] div[data-baseweb="base-input"],
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+    [data-testid="stDateInput"] div[data-baseweb="base-input"] {
+        border: 1px solid #4a6fa5 !important;
     }
     
+    /* Garante que o fundo continua escuro mesmo quando o cliente clica para escrever */
+    [data-testid="stTextInput"] input:focus,
+    [data-testid="stDateInput"] input:focus {
+        background-color: #060B14 !important;
+        color: #ffffff !important;
+    }
+
+    /* 5. ELIMINAR O MARCADOR dd/mm/yyyy DAS DATAS (Torna o texto transparente) */
+    [data-testid="stDateInput"] input::placeholder {
+        color: transparent !important;
+    }
+    [data-testid="stDateInput"] input::-webkit-input-placeholder {
+        color: transparent !important;
+    }
+    [data-testid="stDateInput"] input::-moz-placeholder {
+        color: transparent !important;
+    }
+    [data-testid="stDateInput"] input:-ms-input-placeholder {
+        color: transparent !important;
+    }
+
     /* Efeito visual quando o cliente clica para interagir */
-    div[data-baseweb="input"]:focus-within,
-    div[data-baseweb="select"] > div:focus-within,
-    div[data-baseweb="base-input"]:focus-within {
+    div[data-baseweb="base-input"]:focus-within,
+    div[data-baseweb="select"] > div:focus-within {
         border: 1px solid #2a9d8f !important;
         box-shadow: 0 0 5px rgba(42, 157, 143, 0.5) !important;
     }
 
-    /* 5. RESPONSIVIDADE PARA CELULAR */
+    /* 6. RESPONSIVIDADE PARA CELULAR */
     @media (max-width: 768px) {
         .block-container {
             margin: 2vh 3vw !important;
@@ -463,23 +487,18 @@ def ecra_dashboard():
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # -------------------------------------------------------------------------
-    # CALLBACK DE LIMPEZA DOS FILTROS (O Segredo para não quebrar a aplicação)
-    # -------------------------------------------------------------------------
     def limpar_filtros():
         st.session_state['filtro_texto'] = ""
         st.session_state['filtro_cidade'] = "Todas"
         st.session_state['filtro_dt_ini'] = None
         st.session_state['filtro_dt_fim'] = None
 
-    # Nova estrutura de botões (4 colunas)
     col_btn1, col_btn2, col_btn3, col_btn4 = st.columns([1, 1, 1, 2])
     with col_btn1:
         if st.button("🔄 Atualizar Dados", use_container_width=True):
             buscar_dados_cargas.clear()
             st.rerun()
     with col_btn2:
-        # Passa a função para o on_click
         st.button("🧹 Limpar Filtros", use_container_width=True, on_click=limpar_filtros)
     with col_btn3:
         if st.button("🚪 Terminar Sessão", use_container_width=True):
