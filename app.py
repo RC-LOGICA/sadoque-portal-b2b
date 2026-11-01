@@ -10,7 +10,7 @@ import datetime
 from dotenv import load_dotenv
 from werkzeug.security import check_password_hash
 
-# 1. Configuração inicial da página (Mantenha o layout="wide" para destrancar os limites padrão)
+# 1. Configuração inicial da página
 st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page_icon="📦", layout="wide")
 load_dotenv()
 
@@ -64,7 +64,7 @@ estilo_flutuante = """
         box-shadow: 0 0 5px rgba(42, 157, 143, 0.5) !important;
     }
 
-    /* 5. RESPONSIVIDADE PARA CELULAR (Ecrãs até 768px) */
+    /* 5. RESPONSIVIDADE PARA CELULAR */
     @media (max-width: 768px) {
         .block-container {
             margin: 2vh 3vw !important;
@@ -83,7 +83,7 @@ estilo_flutuante = """
 st.markdown(estilo_flutuante, unsafe_allow_html=True)
 
 # ==============================================================================
-# LIGAÇÃO SEGURA E BUSCA DE DADOS (ALTA PERFORMANCE - SEM TRAVAMENTOS)
+# LIGAÇÃO SEGURA E BUSCA DE DADOS
 # ==============================================================================
 @st.cache_resource
 def inicializar_pool():
@@ -266,7 +266,6 @@ def salvar_mensagem(nf, cnpj, remetente, texto):
 # ==============================================================================
 def exibir_chat(nf_selecionada, cnpj_ativo, nome_empresa):
     st.markdown("---")
-    
     col_titulo, col_btn = st.columns([3, 1])
     with col_titulo:
         st.subheader("💬 Canal de Atendimento (Chat)")
@@ -297,7 +296,7 @@ def exibir_chat(nf_selecionada, cnpj_ativo, nome_empresa):
 
     with st.form(f"form_chat_{nf_selecionada}", clear_on_submit=True):
         nova_msg = st.text_area("Digite a sua dúvida ou mensagem:", height=100, placeholder="Ex: Há previsão de chegada para hoje à tarde?")
-        btn_enviar_msg = st.form_submit_button("📤 Enviar Mensagem", width="stretch")
+        btn_enviar_msg = st.form_submit_button("📤 Enviar Mensagem", use_container_width=True)
         
         if btn_enviar_msg:
             if nova_msg.strip():
@@ -314,6 +313,12 @@ def exibir_chat(nf_selecionada, cnpj_ativo, nome_empresa):
 if 'logado' not in st.session_state: st.session_state['logado'] = False
 if 'cnpj_ativo' not in st.session_state: st.session_state['cnpj_ativo'] = None
 if 'nome_empresa' not in st.session_state: st.session_state['nome_empresa'] = None
+
+# Inicializa as variáveis de filtro vazias na sessão caso não existam
+if 'filtro_texto' not in st.session_state: st.session_state['filtro_texto'] = ""
+if 'filtro_cidade' not in st.session_state: st.session_state['filtro_cidade'] = "Todas"
+if 'filtro_dt_ini' not in st.session_state: st.session_state['filtro_dt_ini'] = None
+if 'filtro_dt_fim' not in st.session_state: st.session_state['filtro_dt_fim'] = None
 
 # ==============================================================================
 # ECRÃ DE LOGIN
@@ -353,7 +358,7 @@ def ecra_login():
             username = st.text_input("Utilizador")
             password = st.text_input("Palavra-passe", type="password")
             st.markdown("<br>", unsafe_allow_html=True) 
-            btn_entrar = st.form_submit_button("Entrar no Sistema", width="stretch")
+            btn_entrar = st.form_submit_button("Entrar no Sistema", use_container_width=True)
             if btn_entrar:
                 if username and password:
                     dados_cliente = validar_login(username.lower().strip(), password.strip())
@@ -399,7 +404,7 @@ def ecra_dashboard():
         if os.path.exists(caminho_logo_cliente):
             c_vazia, c_img_cli = st.columns([0.5, 1.5])
             with c_img_cli:
-                st.image(caminho_logo_cliente, width="stretch")
+                st.image(caminho_logo_cliente, use_container_width=True)
         else:
             st.markdown(f"<div style='text-align: right; font-weight: bold; font-size: 18px; color: #ffffff;'>{nome_cliente_ativo}</div>", unsafe_allow_html=True)
 
@@ -424,53 +429,56 @@ def ecra_dashboard():
 
     st.markdown("### 🔍 Filtros")
     
-    # 4 COLUNAS: Texto, Cidade, Data Inicial e Data Final
     col_filtro1, col_filtro2, col_filtro3, col_filtro4 = st.columns(4)
     with col_filtro1:
-        pesquisa_texto = st.text_input("Procurar por NF ou Destinatário:", "")
+        pesquisa_texto = st.text_input("Procurar por NF ou Destinatário:", key="filtro_texto")
         
     with col_filtro2:
         lista_cidades = ["Todas"] + sorted(df_cargas["Cidade de Destino"].dropna().unique().tolist())
-        cidade_selecionada = st.selectbox("Filtrar por Cidade:", lista_cidades)
+        cidade_selecionada = st.selectbox("Filtrar por Cidade:", lista_cidades, key="filtro_cidade")
         
     with col_filtro3:
-        hoje = datetime.date.today()
-        inicio_padrao = hoje - datetime.timedelta(days=30)
-        data_inicial = st.date_input("Data Inicial (Previsão):", value=inicio_padrao, format="DD/MM/YYYY")
+        # value=None deixa o calendário totalmente zerado na tela
+        data_inicial = st.date_input("Data Inicial (Previsão):", value=None, format="DD/MM/YYYY", key="filtro_dt_ini")
         
     with col_filtro4:
-        data_final = st.date_input("Data Final (Previsão):", value=hoje, format="DD/MM/YYYY")
+        data_final = st.date_input("Data Final (Previsão):", value=None, format="DD/MM/YYYY", key="filtro_dt_fim")
         
     df_filtrado = df_cargas.copy()
     
-    # Aplicação do Filtro de Texto
+    # Processa os filtros
     if pesquisa_texto:
         f_nf = df_filtrado["NF"].astype(str).str.contains(pesquisa_texto, case=False, na=False)
         f_dest = df_filtrado["Destinatário"].astype(str).str.contains(pesquisa_texto, case=False, na=False)
         df_filtrado = df_filtrado[f_nf | f_dest]
         
-    # Aplicação do Filtro de Cidade
     if cidade_selecionada != "Todas":
         df_filtrado = df_filtrado[df_filtrado["Cidade de Destino"] == cidade_selecionada]
 
-    # Aplicação do Filtro de Data (Data Inicial e Data Final separadas)
     if data_inicial and data_final:
         inicio_pd = pd.to_datetime(data_inicial)
         fim_pd = pd.to_datetime(data_final)
-        
         datas_validas = pd.to_datetime(df_filtrado['Previsão'], errors='coerce')
-        
         mascara_data = ((datas_validas >= inicio_pd) & (datas_validas <= fim_pd)) | (df_filtrado['Previsão'] == 'Em cálculo...')
         df_filtrado = df_filtrado[mascara_data]
 
     st.markdown("<br>", unsafe_allow_html=True)
-    col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 3])
+    
+    # Nova estrutura de botões (4 colunas)
+    col_btn1, col_btn2, col_btn3, col_btn4 = st.columns([1, 1, 1, 2])
     with col_btn1:
-        if st.button("🔄 Atualizar Dados", width="stretch"):
+        if st.button("🔄 Atualizar Dados", use_container_width=True):
             buscar_dados_cargas.clear()
             st.rerun()
     with col_btn2:
-        if st.button("🚪 Terminar Sessão", width="stretch"):
+        if st.button("🧹 Limpar Filtros", use_container_width=True):
+            st.session_state['filtro_texto'] = ""
+            st.session_state['filtro_cidade'] = "Todas"
+            st.session_state['filtro_dt_ini'] = None
+            st.session_state['filtro_dt_fim'] = None
+            st.rerun()
+    with col_btn3:
+        if st.button("🚪 Terminar Sessão", use_container_width=True):
             st.session_state.clear()
             st.rerun()
 
@@ -488,19 +496,19 @@ def ecra_dashboard():
         with col_graf1:
             st.markdown("**Distribuição por Status**")
             fig_status = px.pie(df_filtrado, names='Status', hole=0.4, color_discrete_sequence=px.colors.qualitative.Set2)
-            st.plotly_chart(fig_status, width="stretch")
+            st.plotly_chart(fig_status, use_container_width=True)
         with col_graf2:
             st.markdown("**Volume por Cidade (Top 10)**")
             df_cidades = df_filtrado.groupby('Cidade de Destino')['Volumes'].sum().reset_index()
             df_cidades = df_cidades.sort_values(by='Volumes', ascending=False).head(10)
             fig_cidades = px.bar(df_cidades, x='Cidade de Destino', y='Volumes', color='Volumes', color_continuous_scale='Blues')
-            st.plotly_chart(fig_cidades, width="stretch")
+            st.plotly_chart(fig_cidades, use_container_width=True)
 
     st.subheader("Central de Rastreio")
     if df_filtrado.empty:
         st.warning("Nenhuma carga encontrada para os filtros selecionados.")
     else:
-        st.dataframe(df_filtrado, width="stretch", hide_index=True)
+        st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
         csv = df_filtrado.to_csv(index=False, sep=';').encode('utf-8-sig')
         st.download_button(
             label="🗂️ Descarregar Dados (CSV / Excel)", data=csv,
