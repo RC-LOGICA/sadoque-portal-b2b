@@ -15,17 +15,22 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Ataque direto ao BaseWeb + Correção de Cursor)
+# DESIGN SYSTEM PROFISSIONAL (Fundo Branco Gelo + Linhas Visíveis)
 # ==============================================================================
 estilo_flutuante = """
     <style>
     /* Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 1. FUNDO GERAL (Branco Gelo) e TEXTO (Azul Escuro Sadoque) */
+    /* 1. FUNDO GERAL DO PORTAL (Branco Gelo) */
     .stApp { background-color: #F4F7F6 !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
-    [data-testid="stMarkdownContainer"] *, [data-testid="stWidgetLabel"] p { color: #162A45 !important; }
+
+    /* 2. INVERTER A COR DO TEXTO (Para ler no fundo claro, usamos Azul Escuro) */
+    [data-testid="stMarkdownContainer"] *,
+    [data-testid="stWidgetLabel"] p {
+        color: #162A45 !important;
+    }
 
     .block-container {
         max-width: 1250px !important;
@@ -33,58 +38,62 @@ estilo_flutuante = """
         padding-bottom: 3rem !important;
     }
 
-    /* 2. CAIXAS DE FILTROS (Fundo Azul Claro Suave #E8F4FD) */
-    /* Ataque direto à raiz do BaseWeb para ignorar bloqueios do Streamlit Cloud */
-    div[data-baseweb="input"],
-    div[data-baseweb="base-input"],
-    div[data-baseweb="select"] > div {
-        background-color: #E8F4FD !important; 
-        border: 1px solid #B6D4F0 !important;
+    /* 3. QUADRADO COM LINHA FININHA (Caixas e Botões mantêm fundo escuro) */
+    .stTextInput div[data-baseweb="base-input"],
+    .stSelectbox div[data-baseweb="select"] > div,
+    .stDateInput div[data-baseweb="base-input"],
+    .stButton > button,
+    .stFormSubmitButton > button,
+    .stTextArea div[data-baseweb="base-input"] {
+        background-color: #0B132B !important; 
+        border: 1px solid rgba(22, 42, 69, 0.3) !important;
         border-radius: 4px !important;
+        box-shadow: none !important; 
     }
-
-    /* 3. TEXTO E CURSOR DENTRO DAS CAIXAS */
-    input, textarea {
+    
+    /* 4. MANTÉM TEXTO BRANCO DENTRO DAS CAIXAS ESCURAS */
+    .stTextInput input,
+    .stDateInput input,
+    .stTextArea textarea {
         background-color: transparent !important;
-        color: #162A45 !important;
-        -webkit-text-fill-color: #162A45 !important; /* Força cor no Google Chrome */
-        caret-color: #162A45 !important; /* ISTO FORÇA O CURSOR A APARECER */
+        border: none !important;
+        color: #ffffff !important;
         box-shadow: none !important;
     }
+    .stSelectbox div[data-baseweb="select"] * { color: #ffffff !important; }
     
-    div[data-baseweb="select"] * { color: #162A45 !important; }
-    
-    /* Pinta os ícones (calendário, seta) de Azul Escuro */
-    div[data-baseweb="select"] svg, div[data-baseweb="base-input"] svg {
-        fill: #162A45 !important; color: #162A45 !important;
+    /* CORREÇÃO DOS BOTÕES: Força o texto interno a ficar branco absoluto */
+    .stButton > button *, 
+    .stFormSubmitButton > button * { 
+        color: #ffffff !important; 
     }
 
-    /* 4. BOTÕES DE AÇÃO (Fundo Escuro para contraste) */
-    .stButton > button, .stFormSubmitButton > button {
-        background-color: #162A45 !important; 
-        border: 1px solid #162A45 !important;
-        border-radius: 4px !important;
+    /* 5. EFEITO AO CLICAR E HOVER */
+    .stTextInput div[data-baseweb="base-input"]:focus-within,
+    .stSelectbox div[data-baseweb="select"] > div:focus-within,
+    .stDateInput div[data-baseweb="base-input"]:focus-within,
+    .stTextArea div[data-baseweb="base-input"]:focus-within {
+        border: 1px solid #2a9d8f !important;
     }
-    .stButton > button *, .stFormSubmitButton > button * { color: #ffffff !important; }
 
-    /* 5. EFEITOS DE CLIQUE E RATO */
-    div[data-baseweb="input"]:focus-within,
-    div[data-baseweb="base-input"]:focus-within,
-    div[data-baseweb="select"] > div:focus-within {
-        border: 1px solid #2a9d8f !important;
-        box-shadow: 0 0 4px rgba(42, 157, 143, 0.4) !important;
-    }
-    .stButton > button:hover, .stFormSubmitButton > button:hover {
+    /* Hover nos botões (Muda borda e texto para Verde Sadoque) */
+    .stButton > button:hover,
+    .stFormSubmitButton > button:hover {
         border: 1px solid #2a9d8f !important;
     }
-    .stButton > button:hover *, .stFormSubmitButton > button:hover * {
+    .stButton > button:hover *,
+    .stFormSubmitButton > button:hover * {
         color: #2a9d8f !important;
     }
 
-    /* 6. MÉTRICAS E LINHAS */
-    [data-testid="stMetric"] * { color: #ffffff !important; }
+    /* 6. MANTÉM OS TEXTOS DAS MÉTRICAS BRANCOS (Pois os cartões são escuros) */
+    [data-testid="stMetric"] * {
+        color: #ffffff !important;
+    }
+
+    /* 7. LINHAS DE SEPARAÇÃO ELEGANTES (Visíveis no fundo claro) */
     hr {
-        border-bottom: 1px solid rgba(22, 42, 69, 0.2) !important;
+        border-bottom: 1px solid rgba(22, 42, 69, 0.3) !important;
         border-top: none !important;
         margin: 2em 0 !important;
     }
