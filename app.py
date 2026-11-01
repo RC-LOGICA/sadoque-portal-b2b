@@ -15,74 +15,62 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Fundo Cinza Chumbo + Botões Estilizados)
+# DESIGN SYSTEM PROFISSIONAL (Fundo Cinza Chumbo + Linha Fininha)
 # ==============================================================================
 estilo_flutuante = """
     <style>
-    /* 1. Oculta barra superior e rodapé padrão do Streamlit */
+    /* Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 2. FUNDO GERAL DO PORTAL (Cinza Chumbo / Slate) */
-    .stApp {
-        background-color: #1C2434 !important;
-    }
-    [data-testid="stAppViewContainer"], [data-testid="stMain"] {
-        background: transparent !important;
-    }
+    /* FUNDO GERAL DO PORTAL (Cinza Chumbo / Slate) */
+    .stApp { background-color: #1C2434 !important; }
+    [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
 
-    /* 3. ESTRUTURA PRINCIPAL LIMPA */
     .block-container {
         max-width: 1250px !important;
         padding-top: 3rem !important;
         padding-bottom: 3rem !important;
     }
 
-    /* 4. CORREÇÃO DE BOTÕES E FORMULÁRIOS (Mesmo estilo dos inputs) */
-    /* Botões normais e botão de submit do formulário de chat */
-    [data-testid="stButton"] button,
-    [data-testid="stFormSubmitButton"] button {
-        background-color: #0B132B !important;
-        border: 1px solid #4a6fa5 !important;
-        border-radius: 6px !important;
-        color: #ffffff !important;
-        transition: all 0.3s ease;
-    }
-
-    /* Efeito ao passar o rato (hover) nos botões */
-    [data-testid="stButton"] button:hover,
-    [data-testid="stFormSubmitButton"] button:hover {
-        border-color: #2a9d8f !important;
-        color: #2a9d8f !important;
-        background-color: #0B132B !important; /* Impede que fique branco */
+    /* QUADRADO COM LINHA FININHA (Inputs, Datas, Selects e Botões) */
+    .stTextInput div[data-baseweb="base-input"],
+    .stSelectbox div[data-baseweb="select"] > div,
+    .stDateInput div[data-baseweb="base-input"],
+    .stButton > button,
+    .stFormSubmitButton > button,
+    .stTextArea div[data-baseweb="base-input"] {
+        background-color: #0B132B !important; 
+        border: 1px solid rgba(255, 255, 255, 0.2) !important; /* A linha fininha branca translúcida */
+        border-radius: 4px !important; /* Cantos menos arredondados ficam mais nítidos */
+        box-shadow: none !important; /* Mata a sombra nativa que engrossava a borda */
     }
     
-    /* Fundo da área de texto do Chat */
-    [data-testid="stTextArea"] div[data-baseweb="base-input"] {
-        background-color: #0B132B !important;
-        border: 1px solid #4a6fa5 !important;
-        border-radius: 6px !important;
-    }
-    [data-testid="stTextArea"] textarea {
+    /* Remove bordas extras das tags HTML internas para não duplicar linhas */
+    .stTextInput input,
+    .stDateInput input,
+    .stTextArea textarea {
         background-color: transparent !important;
+        border: none !important;
         color: #ffffff !important;
-    }
-    [data-testid="stTextArea"] div[data-baseweb="base-input"]:focus-within {
-        border-color: #2a9d8f !important;
-        box-shadow: 0 0 5px rgba(42, 157, 143, 0.5) !important;
+        box-shadow: none !important;
     }
 
-    /* 5. RESPONSIVIDADE PARA CELULAR */
-    @media (max-width: 768px) {
-        .block-container {
-            padding-top: 1.5rem !important;
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-        [data-testid="stImage"] img {
-            max-width: 55% !important;
-            margin: 0 auto !important;
-            display: block !important;
-        }
+    /* Cor do texto na caixa de cidades */
+    .stSelectbox div[data-baseweb="select"] * { color: #ffffff !important; }
+
+    /* EFEITO AO CLICAR (Fica verde Sadoque com linha fina) */
+    .stTextInput div[data-baseweb="base-input"]:focus-within,
+    .stSelectbox div[data-baseweb="select"] > div:focus-within,
+    .stDateInput div[data-baseweb="base-input"]:focus-within,
+    .stTextArea div[data-baseweb="base-input"]:focus-within {
+        border: 1px solid #2a9d8f !important;
+    }
+
+    /* EFEITO HOVER NOS BOTÕES */
+    .stButton > button:hover,
+    .stFormSubmitButton > button:hover {
+        border: 1px solid #2a9d8f !important;
+        color: #2a9d8f !important;
     }
     </style>
 """
@@ -395,15 +383,15 @@ def ecra_dashboard():
     st.markdown(estilos_dashboard, unsafe_allow_html=True)
 
     # ---------------------------------------------------------
-    # LAYOUT DAS LOGOS - Proporções ajustadas (0.7 para a Sadoque)
+    # LAYOUT DAS LOGOS - Tamanho cravado em píxeis (Sem alargar)
     # ---------------------------------------------------------
-    col_sad, col_centro, col_cli = st.columns([0.7, 2, 1.3])
+    col_sad, col_centro, col_cli = st.columns([1, 2, 1])
     
     with col_sad:
         caminho_logo_sadoque = "assets/logo.png"
         if os.path.exists(caminho_logo_sadoque):
-            # A logo da Sadoque agora respeita o tamanho menor da sua coluna
-            st.image(caminho_logo_sadoque, use_container_width=True) 
+            # Trava a logo da Sadoque num tamanho pequeno e proporcional
+            st.image(caminho_logo_sadoque, width=110) 
         else:
             st.markdown("<h3 style='color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
 
@@ -414,8 +402,10 @@ def ecra_dashboard():
         
         st.markdown(f"<div style='text-align: right; margin-bottom: 5px; color: #a3b1c6;'>Seja bem-vindo,</div>", unsafe_allow_html=True)
         if os.path.exists(caminho_logo_cliente):
-            # A logo do cliente tem mais espaço para se expandir
-            st.image(caminho_logo_cliente, use_container_width=True)
+            # Usa subcolunas para empurrar a logo do cliente para a direita e trava em 170px
+            col_espaço, col_img = st.columns([0.5, 1.5])
+            with col_img:
+                st.image(caminho_logo_cliente, width=170)
         else:
             st.markdown(f"<div style='text-align: right; font-weight: bold; font-size: 18px; color: #ffffff;'>{nome_cliente_ativo}</div>", unsafe_allow_html=True)
 
