@@ -15,7 +15,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Ataque direto ao BaseWeb + Correção Botão Download)
+# DESIGN SYSTEM PROFISSIONAL (Correção de Clique e Cursor no BaseWeb)
 # ==============================================================================
 estilo_flutuante = """
     <style>
@@ -34,7 +34,7 @@ estilo_flutuante = """
     }
 
     /* 2. CAIXAS DE FILTROS (Fundo Azul Claro Suave #E8F4FD) */
-    div[data-baseweb="input"],
+    /* Removido o data-baseweb="input" que estava a criar uma parede de vidro contra os cliques */
     div[data-baseweb="base-input"],
     div[data-baseweb="select"] > div {
         background-color: #E8F4FD !important; 
@@ -46,13 +46,14 @@ estilo_flutuante = """
     input, textarea {
         background-color: transparent !important;
         color: #162A45 !important;
-        -webkit-text-fill-color: #162A45 !important;
-        caret-color: #162A45 !important;
+        -webkit-text-fill-color: #162A45 !important; /* Força cor no Google Chrome */
+        caret-color: #162A45 !important; /* Força o cursor a aparecer e piscar em azul escuro */
         box-shadow: none !important;
     }
     
     div[data-baseweb="select"] * { color: #162A45 !important; }
     
+    /* Pinta os ícones (calendário, seta) de Azul Escuro */
     div[data-baseweb="select"] svg, div[data-baseweb="base-input"] svg {
         fill: #162A45 !important; color: #162A45 !important;
     }
@@ -65,7 +66,6 @@ estilo_flutuante = """
         border: 1px solid #162A45 !important;
         border-radius: 4px !important;
     }
-    /* Força o texto a ficar branco dentro de todos os botões */
     .stButton > button *, 
     .stFormSubmitButton > button *, 
     [data-testid="stDownloadButton"] button * { 
@@ -73,14 +73,12 @@ estilo_flutuante = """
     }
 
     /* 5. EFEITOS DE CLIQUE E RATO */
-    div[data-baseweb="input"]:focus-within,
     div[data-baseweb="base-input"]:focus-within,
     div[data-baseweb="select"] > div:focus-within {
         border: 1px solid #2a9d8f !important;
         box-shadow: 0 0 4px rgba(42, 157, 143, 0.4) !important;
     }
     
-    /* Hover em todos os botões */
     .stButton > button:hover, 
     .stFormSubmitButton > button:hover, 
     [data-testid="stDownloadButton"] button:hover {
@@ -354,6 +352,14 @@ def ecra_login():
             padding: 2.5rem !important;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
         }
+        
+        /* CORREÇÃO: Força todos os textos e labels do login a ficarem brancos */
+        [data-testid="stForm"] p, 
+        [data-testid="stForm"] div[data-testid="stWidgetLabel"] p,
+        [data-testid="stForm"] span {
+            color: #ffffff !important;
+        }
+
         [data-testid="stImage"] img {
             filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.6)) !important;
         }
@@ -375,11 +381,15 @@ def ecra_login():
                 else:
                     st.markdown("<h3 style='text-align: center; color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
             
-            st.markdown("<p style='text-align: center; color: #a3b1c6; font-size: 14px; margin-top: 10px; margin-bottom: 20px;'>Bem-vindo ao sistema de rastreio corporativo.</p>", unsafe_allow_html=True)
+            # Ajustei a cor inline para garantir que sobressai no fundo azul
+            st.markdown("<p style='text-align: center; color: #e2e8f0; font-size: 14px; margin-top: 10px; margin-bottom: 20px;'>Bem-vindo ao sistema de rastreio corporativo.</p>", unsafe_allow_html=True)
+            
             username = st.text_input("Utilizador")
             password = st.text_input("Palavra-passe", type="password")
+            
             st.markdown("<br>", unsafe_allow_html=True) 
             btn_entrar = st.form_submit_button("Entrar no Sistema", use_container_width=True)
+            
             if btn_entrar:
                 if username and password:
                     dados_cliente = validar_login(username.lower().strip(), password.strip())
