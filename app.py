@@ -15,74 +15,34 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Correção Definitiva do Layout de Inputs)
+# DESIGN SYSTEM PROFISSIONAL (Nativo e Sem Gambiarras CSS)
 # ==============================================================================
 estilo_flutuante = """
     <style>
     /* 1. Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 2. O FUNDO ABSOLUTO DO NAVEGADOR */
+    /* 2. FUNDO GERAL DO PORTAL (Azul Escuro Sadoque) */
     .stApp {
-        background-color: #03060A !important;
+        background-color: #060B14 !important;
     }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] {
         background: transparent !important;
     }
 
-    /* 3. A JANELA DA APLICAÇÃO (Desktop) */
+    /* 3. ESTRUTURA PRINCIPAL LIMPA (Sem a caixa azul problemática) */
     .block-container {
-        background-color: #162A45 !important;
         max-width: 1250px !important;
-        margin: 5vh auto !important;
-        padding: 3rem 4rem !important;
-        border-radius: 20px !important;
-        box-shadow: 0px 25px 90px rgba(0, 0, 0, 1) !important;
-        border: 1px solid #2c4970 !important;
+        padding-top: 3rem !important;
+        padding-bottom: 3rem !important;
     }
 
-    /* 4. CORREÇÃO DAS CAIXAS DE FILTROS (O Fim do Quadrado Duplo e Invisibilidade) */
-    
-    /* A. Remove a formatação padrão do container fantasma do Streamlit (apaga o quadrado exterior) */
-    div[data-baseweb="base-input"] {
-        background-color: transparent !important;
-        border: none !important;
-    }
-
-    /* B. Aplica a cor escurecida e a borda APENAS na caixa real de texto e data */
-    [data-testid="stTextInput"] input,
-    [data-testid="stDateInput"] input {
-        background-color: #0B132B !important;
-        border: 1px solid #4a6fa5 !important;
-        border-radius: 6px !important;
-        color: #ffffff !important;
-        padding: 8px 12px !important;
-    }
-
-    /* C. Aplica a cor escurecida na caixa de seleção de Cidades */
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div {
-        background-color: #0B132B !important;
-        border: 1px solid #4a6fa5 !important;
-        border-radius: 6px !important;
-    }
-    [data-testid="stSelectbox"] div[data-baseweb="select"] * {
-        color: #ffffff !important;
-    }
-
-    /* D. Efeito visual correto quando clicado (borda verde Sadoque) */
-    [data-testid="stTextInput"] input:focus,
-    [data-testid="stDateInput"] input:focus,
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within {
-        border: 1px solid #2a9d8f !important;
-        outline: none !important;
-    }
-
-    /* 5. RESPONSIVIDADE PARA CELULAR */
+    /* 4. RESPONSIVIDADE PARA CELULAR (Mantém a correção das Logos) */
     @media (max-width: 768px) {
         .block-container {
-            margin: 2vh 3vw !important;
-            padding: 1.5rem 1rem !important;
-            border-radius: 15px !important;
+            padding-top: 1.5rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
         }
         [data-testid="stImage"] img {
             max-width: 55% !important;
