@@ -452,11 +452,16 @@ def ecra_dashboard():
     # Aplicação do Filtro de Data
     if len(datas_selecionadas) == 2:
         data_inicio, data_fim = datas_selecionadas
-        # Extrai datas válidas e ignora "Em cálculo..." ou nulos na conversão (vira NaT)
-        datas_validas = pd.to_datetime(df_filtrado['Previsão'], format="%Y-%m-%d", errors='coerce').dt.date
         
-        # Cria a máscara para manter as linhas dentro do intervalo OU que ainda estão sem previsão calculada
-        mascara_data = ((datas_validas >= data_inicio) & (datas_validas <= data_fim)) | (df_filtrado['Previsão'] == 'Em cálculo...')
+        # 1. Converte as datas do calendário para o formato nativo do Pandas
+        inicio_pd = pd.to_datetime(data_inicio)
+        fim_pd = pd.to_datetime(data_fim)
+        
+        # 2. Converte a coluna (retirando o .dt.date que quebrava a tipagem)
+        datas_validas = pd.to_datetime(df_filtrado['Previsão'], errors='coerce')
+        
+        # 3. Faz a comparação segura e mantém as cargas "Em cálculo..."
+        mascara_data = ((datas_validas >= inicio_pd) & (datas_validas <= fim_pd)) | (df_filtrado['Previsão'] == 'Em cálculo...')
         df_filtrado = df_filtrado[mascara_data]
 
     st.markdown("<br>", unsafe_allow_html=True)
