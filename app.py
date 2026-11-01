@@ -438,11 +438,10 @@ def ecra_dashboard():
         cidade_selecionada = st.selectbox("Filtrar por Cidade:", lista_cidades, key="filtro_cidade")
         
     with col_filtro3:
-        # value=None deixa o calendário totalmente zerado na tela
-        data_inicial = st.date_input("Data Inicial (Previsão):", value=None, format="DD/MM/YYYY", key="filtro_dt_ini")
+        data_inicial = st.date_input("Data Inicial (Previsão):", format="DD/MM/YYYY", key="filtro_dt_ini")
         
     with col_filtro4:
-        data_final = st.date_input("Data Final (Previsão):", value=None, format="DD/MM/YYYY", key="filtro_dt_fim")
+        data_final = st.date_input("Data Final (Previsão):", format="DD/MM/YYYY", key="filtro_dt_fim")
         
     df_filtrado = df_cargas.copy()
     
@@ -464,6 +463,15 @@ def ecra_dashboard():
 
     st.markdown("<br>", unsafe_allow_html=True)
     
+    # -------------------------------------------------------------------------
+    # CALLBACK DE LIMPEZA DOS FILTROS (O Segredo para não quebrar a aplicação)
+    # -------------------------------------------------------------------------
+    def limpar_filtros():
+        st.session_state['filtro_texto'] = ""
+        st.session_state['filtro_cidade'] = "Todas"
+        st.session_state['filtro_dt_ini'] = None
+        st.session_state['filtro_dt_fim'] = None
+
     # Nova estrutura de botões (4 colunas)
     col_btn1, col_btn2, col_btn3, col_btn4 = st.columns([1, 1, 1, 2])
     with col_btn1:
@@ -471,12 +479,8 @@ def ecra_dashboard():
             buscar_dados_cargas.clear()
             st.rerun()
     with col_btn2:
-        if st.button("🧹 Limpar Filtros", use_container_width=True):
-            st.session_state['filtro_texto'] = ""
-            st.session_state['filtro_cidade'] = "Todas"
-            st.session_state['filtro_dt_ini'] = None
-            st.session_state['filtro_dt_fim'] = None
-            st.rerun()
+        # Passa a função para o on_click
+        st.button("🧹 Limpar Filtros", use_container_width=True, on_click=limpar_filtros)
     with col_btn3:
         if st.button("🚪 Terminar Sessão", use_container_width=True):
             st.session_state.clear()
