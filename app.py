@@ -14,35 +14,44 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Modificação da Viewport - Janela Flutuante Real)
+# DESIGN SYSTEM PROFISSIONAL (Responsivo: Desktop + Mobile)
 # ==============================================================================
 estilo_flutuante = """
     <style>
     /* 1. Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 2. O FUNDO ABSOLUTO DO NAVEGADOR (Cria o "vazio" escuro ao redor) */
-    .stApp, [data-testid="stAppViewContainer"] {
+    /* 2. O FUNDO ABSOLUTO DO NAVEGADOR */
+    .stApp {
         background-color: #03060A !important;
-        background-image: none !important;
     }
-
-    /* 3. A JANELA DA APLICAÇÃO (Transforma o sistema num painel flutuante) */
-    section[data-testid="stMain"] {
-        background-color: #162A45 !important; /* Azul Sadoque brilhante no centro */
-        max-width: 1250px !important; /* Comprime nas laterais */
-        height: 88vh !important; /* Comprime na vertical (espaço em cima e em baixo) */
-        margin: 6vh auto !important; /* Centraliza a caixa no meio da tela */
-        border-radius: 20px !important; /* Arredonda os cantos (Estilo Premium) */
-        box-shadow: 0px 25px 90px rgba(0, 0, 0, 1) !important; /* Sombra preta profunda */
-        border: 1px solid #2c4970 !important; /* Borda subtil para realce 3D */
-        overflow-y: auto !important; /* Barra de rolagem apenas dentro do painel */
-    }
-
-    /* 4. Transparência no container interno para não sobrepor a cor da nova janela */
-    [data-testid="stMainBlockContainer"], .block-container {
+    [data-testid="stAppViewContainer"], [data-testid="stMain"] {
         background: transparent !important;
-        padding: 3rem 4rem !important; /* Espaçamento para o conteúdo não colar na borda */
+    }
+
+    /* 3. A JANELA DA APLICAÇÃO (Regra Geral / Desktop) */
+    .block-container {
+        background-color: #162A45 !important;
+        max-width: 1250px !important;
+        margin: 5vh auto !important;
+        padding: 3rem 4rem !important;
+        border-radius: 20px !important;
+        box-shadow: 0px 25px 90px rgba(0, 0, 0, 1) !important;
+        border: 1px solid #2c4970 !important;
+    }
+
+    /* 4. RESPONSIVIDADE PARA CELULAR (Ativa apenas em ecrãs pequenos) */
+    @media (max-width: 768px) {
+        .block-container {
+            margin: 2vh 3vw !important; /* Reduz a margem exterior */
+            padding: 1.5rem 1rem !important; /* Reduz drasticamente a borda interna */
+            border-radius: 15px !important;
+        }
+        
+        /* Reduz o tamanho das logos para não ocuparem o ecrã todo */
+        [data-testid="stImage"] {
+            padding: 0 15vw !important; 
+        }
     }
     </style>
 """
