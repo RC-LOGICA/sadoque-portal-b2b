@@ -15,7 +15,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção de Overlap)
+# DESIGN SYSTEM PROFISSIONAL (Correção Definitiva do Layout de Inputs)
 # ==============================================================================
 estilo_flutuante = """
     <style>
@@ -41,48 +41,43 @@ estilo_flutuante = """
         border: 1px solid #2c4970 !important;
     }
 
-    /* 4. CORREÇÃO DA ESTRUTURA DOS INPUTS (O Fim do Quadrado Duplo) */
-    /* Aplica o fundo escuro e a borda APENAS no container exterior de todos os filtros */
-    [data-testid="stTextInput"] div[data-baseweb="base-input"],
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-    [data-testid="stDateInput"] div[data-baseweb="base-input"] {
+    /* 4. CORREÇÃO DAS CAIXAS DE FILTROS (O Fim do Quadrado Duplo e Invisibilidade) */
+    
+    /* A. Remove a formatação padrão do container fantasma do Streamlit (apaga o quadrado exterior) */
+    div[data-baseweb="base-input"] {
+        background-color: transparent !important;
+        border: none !important;
+    }
+
+    /* B. Aplica a cor escurecida e a borda APENAS na caixa real de texto e data */
+    [data-testid="stTextInput"] input,
+    [data-testid="stDateInput"] input {
         background-color: #0B132B !important;
         border: 1px solid #4a6fa5 !important;
         border-radius: 6px !important;
-        transition: all 0.3s ease;
-    }
-
-    /* Zera o fundo do input interno (HTML real) para não encavalar o layout (sem quadrado duplo) */
-    [data-testid="stTextInput"] input,
-    [data-testid="stDateInput"] input {
-        background-color: transparent !important;
-        border: none !important;
         color: #ffffff !important;
-        box-shadow: none !important;
+        padding: 8px 12px !important;
     }
 
-    /* Garante cor branca no texto da caixa de seleção */
+    /* C. Aplica a cor escurecida na caixa de seleção de Cidades */
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div {
+        background-color: #0B132B !important;
+        border: 1px solid #4a6fa5 !important;
+        border-radius: 6px !important;
+    }
     [data-testid="stSelectbox"] div[data-baseweb="select"] * {
         color: #ffffff !important;
     }
 
-    /* Foco limpo na borda externa quando o utilizador clica */
-    [data-testid="stTextInput"] div[data-baseweb="base-input"]:focus-within,
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within,
-    [data-testid="stDateInput"] div[data-baseweb="base-input"]:focus-within {
-        border-color: #2a9d8f !important;
-        box-shadow: 0 0 5px rgba(42, 157, 143, 0.5) !important;
+    /* D. Efeito visual correto quando clicado (borda verde Sadoque) */
+    [data-testid="stTextInput"] input:focus,
+    [data-testid="stDateInput"] input:focus,
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within {
+        border: 1px solid #2a9d8f !important;
+        outline: none !important;
     }
 
-    /* 5. OCULTAR A MÁSCARA dd/mm/yyyy DO NAVEGADOR NOS CALENDÁRIOS VAZIOS */
-    ::-webkit-datetime-edit-year-field:not([aria-valuenow]),
-    ::-webkit-datetime-edit-month-field:not([aria-valuenow]),
-    ::-webkit-datetime-edit-day-field:not([aria-valuenow]),
-    ::-webkit-datetime-edit-text:not([aria-valuenow]) {
-        color: transparent !important;
-    }
-
-    /* 6. RESPONSIVIDADE PARA CELULAR */
+    /* 5. RESPONSIVIDADE PARA CELULAR */
     @media (max-width: 768px) {
         .block-container {
             margin: 2vh 3vw !important;
