@@ -15,7 +15,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Fundo Branco Gelo + Texto Azul Sadoque)
+# DESIGN SYSTEM PROFISSIONAL (Fundo Branco Gelo + Linhas Visíveis)
 # ==============================================================================
 estilo_flutuante = """
     <style>
@@ -26,7 +26,7 @@ estilo_flutuante = """
     .stApp { background-color: #F4F7F6 !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
 
-    /* 2. INVERTER A COR DO TEXTO (Para ler no fundo claro, usamos Azul Escuro Sadoque) */
+    /* 2. INVERTER A COR DO TEXTO (Para ler no fundo claro, usamos Azul Escuro) */
     [data-testid="stMarkdownContainer"] *,
     [data-testid="stWidgetLabel"] p {
         color: #162A45 !important;
@@ -38,7 +38,7 @@ estilo_flutuante = """
         padding-bottom: 3rem !important;
     }
 
-    /* 3. QUADRADO COM LINHA FININHA (Caixas de input continuam escuras p/ contraste) */
+    /* 3. QUADRADO COM LINHA FININHA (Caixas e Botões mantêm fundo escuro) */
     .stTextInput div[data-baseweb="base-input"],
     .stSelectbox div[data-baseweb="select"] > div,
     .stDateInput div[data-baseweb="base-input"],
@@ -51,7 +51,7 @@ estilo_flutuante = """
         box-shadow: none !important; 
     }
     
-    /* MANTÉM TEXTO BRANCO DENTRO DAS CAIXAS ESCURAS */
+    /* 4. MANTÉM TEXTO BRANCO DENTRO DAS CAIXAS ESCURAS */
     .stTextInput input,
     .stDateInput input,
     .stTextArea textarea {
@@ -61,9 +61,14 @@ estilo_flutuante = """
         box-shadow: none !important;
     }
     .stSelectbox div[data-baseweb="select"] * { color: #ffffff !important; }
-    .stButton > button, .stFormSubmitButton > button { color: #ffffff !important; }
+    
+    /* CORREÇÃO DOS BOTÕES: Força o texto interno a ficar branco absoluto */
+    .stButton > button *, 
+    .stFormSubmitButton > button * { 
+        color: #ffffff !important; 
+    }
 
-    /* 4. EFEITO AO CLICAR */
+    /* 5. EFEITO AO CLICAR E HOVER */
     .stTextInput div[data-baseweb="base-input"]:focus-within,
     .stSelectbox div[data-baseweb="select"] > div:focus-within,
     .stDateInput div[data-baseweb="base-input"]:focus-within,
@@ -71,16 +76,26 @@ estilo_flutuante = """
         border: 1px solid #2a9d8f !important;
     }
 
-    /* EFEITO HOVER NOS BOTÕES */
+    /* Hover nos botões (Muda borda e texto para Verde Sadoque) */
     .stButton > button:hover,
     .stFormSubmitButton > button:hover {
         border: 1px solid #2a9d8f !important;
+    }
+    .stButton > button:hover *,
+    .stFormSubmitButton > button:hover * {
         color: #2a9d8f !important;
     }
 
-    /* 5. MANTÉM OS TEXTOS DAS MÉTRICAS BRANCOS (Pois os cartões são escuros) */
+    /* 6. MANTÉM OS TEXTOS DAS MÉTRICAS BRANCOS (Pois os cartões são escuros) */
     [data-testid="stMetric"] * {
         color: #ffffff !important;
+    }
+
+    /* 7. LINHAS DE SEPARAÇÃO ELEGANTES (Visíveis no fundo claro) */
+    hr {
+        border-bottom: 1px solid rgba(22, 42, 69, 0.3) !important;
+        border-top: none !important;
+        margin: 2em 0 !important;
     }
     </style>
 """
