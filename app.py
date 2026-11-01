@@ -119,7 +119,7 @@ def buscar_dados_cargas(cnpj_cliente):
             SELECT 
                 REGEXP_REPLACE(numero_nf::TEXT, '[^0-9]', '', 'g') as "NF",
                 MAX(cliente) as "Destinatário",
-                MAX(cidade) as "Cidade de Destino",
+                MAX(cidade) || ' / ' || MAX(estado) as "Cidade de Destino",
                 MAX(COALESCE(qtd_volumes, 0)) as "Volumes", 
                 MAX(COALESCE(NULLIF(data_prev_entrega::TEXT, ''), 'Em cálculo...')) as "Previsão",
                 MAX(
