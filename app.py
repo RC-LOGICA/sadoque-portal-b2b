@@ -15,7 +15,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção de Inputs)
+# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção Universal de Inputs)
 # ==============================================================================
 estilo_flutuante = """
     <style>
@@ -41,20 +41,26 @@ estilo_flutuante = """
         border: 1px solid #2c4970 !important;
     }
 
-    /* 4. CORREÇÃO DAS CAIXAS DE BUSCA (Ataque direto aos componentes) */
-    [data-testid="stTextInput"] div[data-baseweb="base-input"],
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-    [data-testid="stDateInput"] div[data-baseweb="base-input"] {
-        background-color: #060B14 !important; /* Fundo quase preto para contraste */
-        border: 1px solid #4a6fa5 !important; /* Borda azul clara para delimitar a caixa */
+    /* 4. CORREÇÃO UNIVERSAL DAS CAIXAS DE INPUT E CALENDÁRIO */
+    div[data-baseweb="input"], 
+    div[data-baseweb="select"] > div,
+    div[data-baseweb="base-input"] {
+        background-color: #060B14 !important;
+        border: 1px solid #4a6fa5 !important;
         border-radius: 8px !important;
+        color: #ffffff !important;
     }
     
-    /* Efeito visual quando o cliente clica para escrever */
-    [data-testid="stTextInput"] div[data-baseweb="base-input"]:focus-within,
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within,
-    [data-testid="stDateInput"] div[data-baseweb="base-input"]:focus-within {
-        border: 1px solid #2a9d8f !important; /* Borda verde */
+    input {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+    
+    /* Efeito visual quando o cliente clica para interagir */
+    div[data-baseweb="input"]:focus-within,
+    div[data-baseweb="select"] > div:focus-within,
+    div[data-baseweb="base-input"]:focus-within {
+        border: 1px solid #2a9d8f !important;
         box-shadow: 0 0 5px rgba(42, 157, 143, 0.5) !important;
     }
 
@@ -66,7 +72,6 @@ estilo_flutuante = """
             border-radius: 15px !important;
         }
         
-        /* CORREÇÃO DAS LOGOS: Força a imagem real a encolher pela metade */
         [data-testid="stImage"] img {
             max-width: 55% !important;
             margin: 0 auto !important;
@@ -419,8 +424,8 @@ def ecra_dashboard():
 
     st.markdown("### 🔍 Filtros")
     
-    # NOVAS COLUNAS: 3 colunas para acomodar o calendário
-    col_filtro1, col_filtro2, col_filtro3 = st.columns(3)
+    # 4 COLUNAS: Texto, Cidade, Data Inicial e Data Final
+    col_filtro1, col_filtro2, col_filtro3, col_filtro4 = st.columns(4)
     with col_filtro1:
         pesquisa_texto = st.text_input("Procurar por NF ou Destinatário:", "")
         
@@ -431,11 +436,10 @@ def ecra_dashboard():
     with col_filtro3:
         hoje = datetime.date.today()
         inicio_padrao = hoje - datetime.timedelta(days=30)
-        datas_selecionadas = st.date_input(
-            "Filtrar por Período (Previsão):", 
-            value=(inicio_padrao, hoje), 
-            format="DD/MM/YYYY"
-        )
+        data_inicial = st.date_input("Data Inicial (Previsão):", value=inicio_padrao, format="DD/MM/YYYY")
+        
+    with col_filtro4:
+        data_final = st.date_input("Data Final (Previsão):", value=hoje, format="DD/MM/YYYY")
         
     df_filtrado = df_cargas.copy()
     
@@ -449,18 +453,13 @@ def ecra_dashboard():
     if cidade_selecionada != "Todas":
         df_filtrado = df_filtrado[df_filtrado["Cidade de Destino"] == cidade_selecionada]
 
-    # Aplicação do Filtro de Data
-    if len(datas_selecionadas) == 2:
-        data_inicio, data_fim = datas_selecionadas
+    # Aplicação do Filtro de Data (Data Inicial e Data Final separadas)
+    if data_inicial and data_final:
+        inicio_pd = pd.to_datetime(data_inicial)
+        fim_pd = pd.to_datetime(data_final)
         
-        # 1. Converte as datas do calendário para o formato nativo do Pandas
-        inicio_pd = pd.to_datetime(data_inicio)
-        fim_pd = pd.to_datetime(data_fim)
-        
-        # 2. Converte a coluna (retirando o .dt.date que quebrava a tipagem)
         datas_validas = pd.to_datetime(df_filtrado['Previsão'], errors='coerce')
         
-        # 3. Faz a comparação segura e mantém as cargas "Em cálculo..."
         mascara_data = ((datas_validas >= inicio_pd) & (datas_validas <= fim_pd)) | (df_filtrado['Previsão'] == 'Em cálculo...')
         df_filtrado = df_filtrado[mascara_data]
 
@@ -546,9 +545,6 @@ def ecra_dashboard():
                     if obs.lower() not in ['nan', 'none', 'nulo', '']:
                         st.caption(f"📝 *Obs: {obs}*")
 
-            # ==============================================================================
-            # CHAMA O CHAT MANUAL
-            # ==============================================================================
             exibir_chat(nf_selecionada, st.session_state['cnpj_ativo'], st.session_state['nome_empresa'])
 
 # ==============================================================================
