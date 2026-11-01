@@ -14,7 +14,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Responsivo: Desktop + Mobile)
+# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção de Inputs)
 # ==============================================================================
 estilo_flutuante = """
     <style>
@@ -29,7 +29,7 @@ estilo_flutuante = """
         background: transparent !important;
     }
 
-    /* 3. A JANELA DA APLICAÇÃO (Regra Geral / Desktop) */
+    /* 3. A JANELA DA APLICAÇÃO (Desktop) */
     .block-container {
         background-color: #162A45 !important;
         max-width: 1250px !important;
@@ -40,17 +40,31 @@ estilo_flutuante = """
         border: 1px solid #2c4970 !important;
     }
 
-    /* 4. RESPONSIVIDADE PARA CELULAR (Ativa apenas em ecrãs pequenos) */
+    /* 4. CORREÇÃO DAS CAIXAS DE BUSCA (Fundo escuro e borda) */
+    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
+        background-color: #0B132B !important; /* Fundo mais escuro para destacar do painel */
+        border: 1px solid #2c4970 !important; /* Borda discreta */
+        border-radius: 8px !important;
+    }
+    
+    /* Borda verde (cor da sua paleta) quando o cliente clica para digitar */
+    div[data-baseweb="input"] > div:focus-within, div[data-baseweb="select"] > div:focus-within {
+        border-color: #2a9d8f !important;
+    }
+
+    /* 5. RESPONSIVIDADE PARA CELULAR (Ecrãs até 768px) */
     @media (max-width: 768px) {
         .block-container {
-            margin: 2vh 3vw !important; /* Reduz a margem exterior */
-            padding: 1.5rem 1rem !important; /* Reduz drasticamente a borda interna */
+            margin: 2vh 3vw !important;
+            padding: 1.5rem 1rem !important;
             border-radius: 15px !important;
         }
         
-        /* Reduz o tamanho das logos para não ocuparem o ecrã todo */
-        [data-testid="stImage"] {
-            padding: 0 15vw !important; 
+        /* CORREÇÃO DAS LOGOS: Força a imagem real a encolher pela metade */
+        [data-testid="stImage"] img {
+            max-width: 55% !important;
+            margin: 0 auto !important;
+            display: block !important;
         }
     }
     </style>
