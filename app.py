@@ -15,29 +15,29 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Nativo e Sem Gambiarras CSS)
+# DESIGN SYSTEM PROFISSIONAL (Fundo Azul Sadoque e Sem Gambiarras)
 # ==============================================================================
 estilo_flutuante = """
     <style>
     /* 1. Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 2. FUNDO GERAL DO PORTAL (Azul Escuro Sadoque) */
+    /* 2. FUNDO GERAL DO PORTAL (Azul Marinho Claro) */
     .stApp {
-        background-color: #060B14 !important;
+        background-color: #162A45 !important;
     }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] {
         background: transparent !important;
     }
 
-    /* 3. ESTRUTURA PRINCIPAL LIMPA (Sem a caixa azul problemática) */
+    /* 3. ESTRUTURA PRINCIPAL LIMPA */
     .block-container {
         max-width: 1250px !important;
         padding-top: 3rem !important;
         padding-bottom: 3rem !important;
     }
 
-    /* 4. RESPONSIVIDADE PARA CELULAR (Mantém a correção das Logos) */
+    /* 4. RESPONSIVIDADE PARA CELULAR */
     @media (max-width: 768px) {
         .block-container {
             padding-top: 1.5rem !important;
