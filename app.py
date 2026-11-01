@@ -15,7 +15,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção HTML Universal)
+# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção de Overlap)
 # ==============================================================================
 estilo_flutuante = """
     <style>
@@ -41,25 +41,44 @@ estilo_flutuante = """
         border: 1px solid #2c4970 !important;
     }
 
-    /* 4. CORREÇÃO DEFINITIVA (Ataque direto à tag HTML universal) */
-    input, 
-    div[data-baseweb="select"] > div,
-    div[data-baseweb="base-input"] {
+    /* 4. CORREÇÃO DA ESTRUTURA DOS INPUTS (O Fim do Quadrado Duplo) */
+    /* Aplica o fundo escuro e a borda APENAS no container exterior de todos os filtros */
+    [data-testid="stTextInput"] div[data-baseweb="base-input"],
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+    [data-testid="stDateInput"] div[data-baseweb="base-input"] {
         background-color: #0B132B !important;
         border: 1px solid #4a6fa5 !important;
         border-radius: 6px !important;
+        transition: all 0.3s ease;
+    }
+
+    /* Zera o fundo do input interno (HTML real) para não encavalar o layout (sem quadrado duplo) */
+    [data-testid="stTextInput"] input,
+    [data-testid="stDateInput"] input {
+        background-color: transparent !important;
+        border: none !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+    }
+
+    /* Garante cor branca no texto da caixa de seleção */
+    [data-testid="stSelectbox"] div[data-baseweb="select"] * {
         color: #ffffff !important;
     }
 
-    /* Garante que o texto dentro do selectbox fica branco */
-    div[data-baseweb="select"] span {
-        color: #ffffff !important;
+    /* Foco limpo na borda externa quando o utilizador clica */
+    [data-testid="stTextInput"] div[data-baseweb="base-input"]:focus-within,
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within,
+    [data-testid="stDateInput"] div[data-baseweb="base-input"]:focus-within {
+        border-color: #2a9d8f !important;
+        box-shadow: 0 0 5px rgba(42, 157, 143, 0.5) !important;
     }
 
-    /* 5. ELIMINAR O MARCADOR dd/mm/yyyy DAS DATAS (Transparência total) */
-    input::placeholder,
-    input::-webkit-input-placeholder,
-    input::-moz-placeholder {
+    /* 5. OCULTAR A MÁSCARA dd/mm/yyyy DO NAVEGADOR NOS CALENDÁRIOS VAZIOS */
+    ::-webkit-datetime-edit-year-field:not([aria-valuenow]),
+    ::-webkit-datetime-edit-month-field:not([aria-valuenow]),
+    ::-webkit-datetime-edit-day-field:not([aria-valuenow]),
+    ::-webkit-datetime-edit-text:not([aria-valuenow]) {
         color: transparent !important;
     }
 
