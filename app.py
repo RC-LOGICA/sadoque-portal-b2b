@@ -6,6 +6,7 @@ import psycopg2.extras
 from psycopg2.pool import ThreadedConnectionPool
 import pandas as pd
 import plotly.express as px
+import datetime
 from dotenv import load_dotenv
 from werkzeug.security import check_password_hash
 
@@ -40,16 +41,21 @@ estilo_flutuante = """
         border: 1px solid #2c4970 !important;
     }
 
-    /* 4. CORREÇÃO DAS CAIXAS DE BUSCA (Fundo escuro e borda) */
-    div[data-baseweb="input"] > div, div[data-baseweb="select"] > div {
-        background-color: #0B132B !important; /* Fundo mais escuro para destacar do painel */
-        border: 1px solid #2c4970 !important; /* Borda discreta */
+    /* 4. CORREÇÃO DAS CAIXAS DE BUSCA (Ataque direto aos componentes) */
+    [data-testid="stTextInput"] div[data-baseweb="base-input"],
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+    [data-testid="stDateInput"] div[data-baseweb="base-input"] {
+        background-color: #060B14 !important; /* Fundo quase preto para contraste */
+        border: 1px solid #4a6fa5 !important; /* Borda azul clara para delimitar a caixa */
         border-radius: 8px !important;
     }
     
-    /* Borda verde (cor da sua paleta) quando o cliente clica para digitar */
-    div[data-baseweb="input"] > div:focus-within, div[data-baseweb="select"] > div:focus-within {
-        border-color: #2a9d8f !important;
+    /* Efeito visual quando o cliente clica para escrever */
+    [data-testid="stTextInput"] div[data-baseweb="base-input"]:focus-within,
+    [data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within,
+    [data-testid="stDateInput"] div[data-baseweb="base-input"]:focus-within {
+        border: 1px solid #2a9d8f !important; /* Borda verde */
+        box-shadow: 0 0 5px rgba(42, 157, 143, 0.5) !important;
     }
 
     /* 5. RESPONSIVIDADE PARA CELULAR (Ecrãs até 768px) */
@@ -82,7 +88,6 @@ def inicializar_pool():
             db_url = os.getenv("DATABASE_URL_DEV")
             print("🌐 PORTAL WEB: Iniciado em MODO DEV (Homologação)")
         else:
-            # CORREÇÃO ESTRUTURAL: Lendo a variável exata do seu .env
             db_url = os.getenv("DATABASE_URL") 
             print("🌐 PORTAL WEB: Iniciado em MODO PROD (Lendo o Supabase Oficial)")
             
@@ -102,10 +107,9 @@ def conectar_banco():
     return pool_global.getconn()
 
 def liberar_conexao(conn):
-    """Devolve a conexão para a Pool garantindo que a transação é fechada."""
     if conn and pool_global:
         try:
-            conn.rollback()  # 🔓 A MÁGICA: Fecha a leitura e liberta a tabela para o Desktop!
+            conn.rollback()
         except:
             pass
         pool_global.putconn(conn)
@@ -137,7 +141,6 @@ def buscar_dados_cargas(cnpj_cliente):
         conn = conectar_banco()
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         
-        # MAPEAMENTO FINAL: Coluna 'status_carregamento' inserida na lógica de extração
         cursor.execute("""
             SELECT 
                 REGEXP_REPLACE(numero_nf::TEXT, '[^0-9]', '', 'g') as "NF",
@@ -192,7 +195,6 @@ def buscar_historico_nf(numero_nf):
     finally:
         liberar_conexao(conn)
 
-# 🚀 FUNÇÃO 1: CORRIGINDO O ALERTA (Removendo conflito de Timezone)
 def verificar_alertas_chat(cnpj):
     conn = None
     try:
@@ -214,7 +216,6 @@ def verificar_alertas_chat(cnpj):
     finally:
         liberar_conexao(conn)
 
-# 🚀 FUNÇÃO 2: ORDENAÇÃO CORRETA DAS MENSAGENS (Intercalando o Chat)
 def buscar_mensagens(nf, cnpj):
     conn = None
     try:
@@ -256,7 +257,7 @@ def salvar_mensagem(nf, cnpj, remetente, texto):
         liberar_conexao(conn)
 
 # ==============================================================================
-# CHAT MANUAL (FIM DOS TRAVAMENTOS DE BANCO DE DADOS)
+# CHAT MANUAL
 # ==============================================================================
 def exibir_chat(nf_selecionada, cnpj_ativo, nome_empresa):
     st.markdown("---")
@@ -400,7 +401,6 @@ def ecra_dashboard():
     st.markdown("<div style='text-align: center; color: #a3b1c6; font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 5px;'>Inteligência Logística e Rastreio (B2B)</div>", unsafe_allow_html=True)
     st.markdown("---")
     
-    # 🚨 ALERTA VISUAL INTELIGENTE DE MENSAGENS AQUI 🚨
     nfs_com_resposta = verificar_alertas_chat(st.session_state['cnpj_ativo'])
     if nfs_com_resposta:
         nfs_str = ", ".join(nfs_com_resposta)
@@ -418,20 +418,46 @@ def ecra_dashboard():
         return
 
     st.markdown("### 🔍 Filtros")
-    col_filtro1, col_filtro2 = st.columns(2)
+    
+    # NOVAS COLUNAS: 3 colunas para acomodar o calendário
+    col_filtro1, col_filtro2, col_filtro3 = st.columns(3)
     with col_filtro1:
-        pesquisa_texto = st.text_input("Procurar por Número da NF ou Destinatário:", "")
+        pesquisa_texto = st.text_input("Procurar por NF ou Destinatário:", "")
+        
     with col_filtro2:
         lista_cidades = ["Todas"] + sorted(df_cargas["Cidade de Destino"].dropna().unique().tolist())
-        cidade_selecionada = st.selectbox("Filtrar por Cidade de Destino:", lista_cidades)
+        cidade_selecionada = st.selectbox("Filtrar por Cidade:", lista_cidades)
+        
+    with col_filtro3:
+        hoje = datetime.date.today()
+        inicio_padrao = hoje - datetime.timedelta(days=30)
+        datas_selecionadas = st.date_input(
+            "Filtrar por Período (Previsão):", 
+            value=(inicio_padrao, hoje), 
+            format="DD/MM/YYYY"
+        )
         
     df_filtrado = df_cargas.copy()
+    
+    # Aplicação do Filtro de Texto
     if pesquisa_texto:
         f_nf = df_filtrado["NF"].astype(str).str.contains(pesquisa_texto, case=False, na=False)
         f_dest = df_filtrado["Destinatário"].astype(str).str.contains(pesquisa_texto, case=False, na=False)
         df_filtrado = df_filtrado[f_nf | f_dest]
+        
+    # Aplicação do Filtro de Cidade
     if cidade_selecionada != "Todas":
         df_filtrado = df_filtrado[df_filtrado["Cidade de Destino"] == cidade_selecionada]
+
+    # Aplicação do Filtro de Data
+    if len(datas_selecionadas) == 2:
+        data_inicio, data_fim = datas_selecionadas
+        # Extrai datas válidas e ignora "Em cálculo..." ou nulos na conversão (vira NaT)
+        datas_validas = pd.to_datetime(df_filtrado['Previsão'], format="%Y-%m-%d", errors='coerce').dt.date
+        
+        # Cria a máscara para manter as linhas dentro do intervalo OU que ainda estão sem previsão calculada
+        mascara_data = ((datas_validas >= data_inicio) & (datas_validas <= data_fim)) | (df_filtrado['Previsão'] == 'Em cálculo...')
+        df_filtrado = df_filtrado[mascara_data]
 
     st.markdown("<br>", unsafe_allow_html=True)
     col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 3])
@@ -468,7 +494,7 @@ def ecra_dashboard():
 
     st.subheader("Central de Rastreio")
     if df_filtrado.empty:
-        st.warning("Nenhuma carga encontrada.")
+        st.warning("Nenhuma carga encontrada para os filtros selecionados.")
     else:
         st.dataframe(df_filtrado, width="stretch", hide_index=True)
         csv = df_filtrado.to_csv(index=False, sep=';').encode('utf-8-sig')
