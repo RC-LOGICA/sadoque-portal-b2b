@@ -15,16 +15,22 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Fundo Mais Claro + Linha Fininha)
+# DESIGN SYSTEM PROFISSIONAL (Fundo Branco Gelo + Texto Azul Sadoque)
 # ==============================================================================
 estilo_flutuante = """
     <style>
     /* Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* FUNDO GERAL DO PORTAL (Mais claro: Azul/Cinza Metálico) */
-    .stApp { background-color: #34495E !important; }
+    /* 1. FUNDO GERAL DO PORTAL (Branco Gelo) */
+    .stApp { background-color: #F4F7F6 !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
+
+    /* 2. INVERTER A COR DO TEXTO (Para ler no fundo claro, usamos Azul Escuro Sadoque) */
+    [data-testid="stMarkdownContainer"] *,
+    [data-testid="stWidgetLabel"] p {
+        color: #162A45 !important;
+    }
 
     .block-container {
         max-width: 1250px !important;
@@ -32,7 +38,7 @@ estilo_flutuante = """
         padding-bottom: 3rem !important;
     }
 
-    /* QUADRADO COM LINHA FININHA (Inputs, Datas, Selects e Botões) */
+    /* 3. QUADRADO COM LINHA FININHA (Caixas de input continuam escuras p/ contraste) */
     .stTextInput div[data-baseweb="base-input"],
     .stSelectbox div[data-baseweb="select"] > div,
     .stDateInput div[data-baseweb="base-input"],
@@ -40,12 +46,12 @@ estilo_flutuante = """
     .stFormSubmitButton > button,
     .stTextArea div[data-baseweb="base-input"] {
         background-color: #0B132B !important; 
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(22, 42, 69, 0.3) !important;
         border-radius: 4px !important;
         box-shadow: none !important; 
     }
     
-    /* Remove bordas extras das tags HTML internas */
+    /* MANTÉM TEXTO BRANCO DENTRO DAS CAIXAS ESCURAS */
     .stTextInput input,
     .stDateInput input,
     .stTextArea textarea {
@@ -54,11 +60,10 @@ estilo_flutuante = """
         color: #ffffff !important;
         box-shadow: none !important;
     }
-
-    /* Cor do texto na caixa de cidades */
     .stSelectbox div[data-baseweb="select"] * { color: #ffffff !important; }
+    .stButton > button, .stFormSubmitButton > button { color: #ffffff !important; }
 
-    /* EFEITO AO CLICAR (Fica verde Sadoque com linha fina) */
+    /* 4. EFEITO AO CLICAR */
     .stTextInput div[data-baseweb="base-input"]:focus-within,
     .stSelectbox div[data-baseweb="select"] > div:focus-within,
     .stDateInput div[data-baseweb="base-input"]:focus-within,
@@ -71,6 +76,11 @@ estilo_flutuante = """
     .stFormSubmitButton > button:hover {
         border: 1px solid #2a9d8f !important;
         color: #2a9d8f !important;
+    }
+
+    /* 5. MANTÉM OS TEXTOS DAS MÉTRICAS BRANCOS (Pois os cartões são escuros) */
+    [data-testid="stMetric"] * {
+        color: #ffffff !important;
     }
     </style>
 """
