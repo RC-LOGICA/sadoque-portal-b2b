@@ -448,10 +448,10 @@ def ecra_dashboard():
         st.warning("Nenhuma carga encontrada.")
     else:
         st.dataframe(df_filtrado, width="stretch", hide_index=True)
-        csv = df_filtrado.to_csv(index=False).encode('utf-8')
+        csv = df_filtrado.to_csv(index=False, sep=';').encode('utf-8-sig')
         st.download_button(
-            label="📥 Descarregar Dados (CSV / Excel)", data=csv,
-            file_name=f"relatorio_cargas_{st.session_state['nome_empresa']}.csv", mime="text/csv",
+            label="🗂️ Descarregar Dados (CSV / Excel)", data=csv,
+            file_name="relatorio_rastreio_sadoque.csv", mime="text/csv",
         )
 
     st.markdown("---")
