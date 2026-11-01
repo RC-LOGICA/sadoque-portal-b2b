@@ -15,16 +15,17 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Fundo Azul Sadoque e Sem Gambiarras)
+# DESIGN SYSTEM PROFISSIONAL (Fundo Cinza Chumbo p/ Contraste)
 # ==============================================================================
 estilo_flutuante = """
     <style>
     /* 1. Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 2. FUNDO GERAL DO PORTAL (Azul Marinho Claro) */
+    /* 2. FUNDO GERAL DO PORTAL (Cinza Chumbo / Slate) */
+    /* Cria contraste com os cartões azuis sem apagar os textos brancos */
     .stApp {
-        background-color: #162A45 !important;
+        background-color: #1C2434 !important;
     }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] {
         background: transparent !important;
