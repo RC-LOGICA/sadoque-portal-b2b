@@ -15,7 +15,7 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção Extrema de Inputs)
+# DESIGN SYSTEM PROFISSIONAL (Responsivo + Correção Definitiva de Inputs)
 # ==============================================================================
 estilo_flutuante = """
     <style>
@@ -41,51 +41,44 @@ estilo_flutuante = """
         border: 1px solid #2c4970 !important;
     }
 
-    /* 4. CORREÇÃO EXTREMA DAS CAIXAS DE INPUT E CALENDÁRIO */
-    /* Ataca diretamente a tag interna de texto e os containers do Streamlit Cloud */
-    [data-testid="stTextInput"] div[data-baseweb="base-input"],
-    [data-testid="stTextInput"] input,
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-    [data-testid="stDateInput"] div[data-baseweb="base-input"],
-    [data-testid="stDateInput"] input {
-        background-color: #060B14 !important;
-        color: #ffffff !important;
+    /* 4. CORREÇÃO DEFINITIVA DAS CAIXAS (Texto, Select e Data) */
+    /* Fundo Azul Sadoque (igual aos cards) com borda delimitadora */
+    div[data-baseweb="base-input"],
+    div[data-baseweb="select"] > div {
+        background-color: #1F3A5F !important;
+        border: 1px solid #4a6fa5 !important;
         border-radius: 8px !important;
     }
     
-    /* Aplica a borda apenas no container exterior para não duplicar */
-    [data-testid="stTextInput"] div[data-baseweb="base-input"],
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-    [data-testid="stDateInput"] div[data-baseweb="base-input"] {
-        border: 1px solid #4a6fa5 !important;
+    /* Força o interior da caixa a respeitar o fundo escuro e texto branco */
+    div[data-baseweb="base-input"] > input,
+    div[data-baseweb="base-input"] > textarea {
+        background-color: #1F3A5F !important;
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
     }
-    
-    /* Garante que o fundo continua escuro mesmo quando o cliente clica para escrever */
-    [data-testid="stTextInput"] input:focus,
-    [data-testid="stDateInput"] input:focus {
-        background-color: #060B14 !important;
+
+    /* Força o texto dentro do botão da Cidade a ficar branco */
+    div[data-baseweb="select"] * {
         color: #ffffff !important;
     }
 
-    /* 5. ELIMINAR O MARCADOR dd/mm/yyyy DAS DATAS (Torna o texto transparente) */
-    [data-testid="stDateInput"] input::placeholder {
-        color: transparent !important;
-    }
-    [data-testid="stDateInput"] input::-webkit-input-placeholder {
-        color: transparent !important;
-    }
-    [data-testid="stDateInput"] input::-moz-placeholder {
-        color: transparent !important;
-    }
-    [data-testid="stDateInput"] input:-ms-input-placeholder {
-        color: transparent !important;
-    }
-
-    /* Efeito visual quando o cliente clica para interagir */
+    /* Efeito de foco quando o cliente clica para digitar (Borda Verde) */
     div[data-baseweb="base-input"]:focus-within,
     div[data-baseweb="select"] > div:focus-within {
-        border: 1px solid #2a9d8f !important;
+        border-color: #2a9d8f !important;
         box-shadow: 0 0 5px rgba(42, 157, 143, 0.5) !important;
+    }
+
+    /* 5. OCULTAR O "dd/mm/yyyy" DOS CALENDÁRIOS VAZIOS */
+    div[data-testid="stDateInput"] input::placeholder {
+        color: transparent !important;
+    }
+    div[data-testid="stDateInput"] input::-webkit-input-placeholder {
+        color: transparent !important;
+    }
+    div[data-testid="stDateInput"] input::-moz-placeholder {
+        color: transparent !important;
     }
 
     /* 6. RESPONSIVIDADE PARA CELULAR */
@@ -95,7 +88,6 @@ estilo_flutuante = """
             padding: 1.5rem 1rem !important;
             border-radius: 15px !important;
         }
-        
         [data-testid="stImage"] img {
             max-width: 55% !important;
             margin: 0 auto !important;
