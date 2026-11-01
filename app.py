@@ -15,22 +15,17 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Fundo Branco Gelo + Inputs Azul Claro Forçados)
+# DESIGN SYSTEM PROFISSIONAL (Ataque direto ao BaseWeb + Correção de Cursor)
 # ==============================================================================
 estilo_flutuante = """
     <style>
     /* Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 1. FUNDO GERAL DO PORTAL (Branco Gelo) */
+    /* 1. FUNDO GERAL (Branco Gelo) e TEXTO (Azul Escuro Sadoque) */
     .stApp { background-color: #F4F7F6 !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
-
-    /* 2. COR DO TEXTO GERAL (Azul Escuro Sadoque) */
-    [data-testid="stMarkdownContainer"] *,
-    [data-testid="stWidgetLabel"] p {
-        color: #162A45 !important;
-    }
+    [data-testid="stMarkdownContainer"] *, [data-testid="stWidgetLabel"] p { color: #162A45 !important; }
 
     .block-container {
         max-width: 1250px !important;
@@ -38,75 +33,56 @@ estilo_flutuante = """
         padding-bottom: 3rem !important;
     }
 
-    /* 3. CAIXAS DE INPUT E FILTROS (Fundo Azul Claro Suave) */
-    /* Voltou a usar data-testid para garantir força máxima no código */
-    [data-testid="stTextInput"] div[data-baseweb="base-input"],
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-    [data-testid="stDateInput"] div[data-baseweb="base-input"],
-    [data-testid="stTextArea"] div[data-baseweb="base-input"] {
+    /* 2. CAIXAS DE FILTROS (Fundo Azul Claro Suave #E8F4FD) */
+    /* Ataque direto à raiz do BaseWeb para ignorar bloqueios do Streamlit Cloud */
+    div[data-baseweb="input"],
+    div[data-baseweb="base-input"],
+    div[data-baseweb="select"] > div {
         background-color: #E8F4FD !important; 
-        border: 1px solid #B6D4F0 !important; /* Borda azul clara */
+        border: 1px solid #B6D4F0 !important;
         border-radius: 4px !important;
-        box-shadow: none !important; 
     }
-    
-    /* 4. TEXTO DENTRO DAS CAIXAS (Azul Escuro para dar leitura) */
-    [data-testid="stTextInput"] input,
-    [data-testid="stDateInput"] input,
-    [data-testid="stTextArea"] textarea {
+
+    /* 3. TEXTO E CURSOR DENTRO DAS CAIXAS */
+    input, textarea {
         background-color: transparent !important;
-        border: none !important;
         color: #162A45 !important;
         -webkit-text-fill-color: #162A45 !important; /* Força cor no Google Chrome */
+        caret-color: #162A45 !important; /* ISTO FORÇA O CURSOR A APARECER */
         box-shadow: none !important;
     }
-    [data-testid="stSelectbox"] div[data-baseweb="select"] * { color: #162A45 !important; }
     
-    /* Ícones (calendário e seta) também em Azul Escuro para não desaparecerem */
-    [data-testid="stSelectbox"] svg,
-    [data-testid="stDateInput"] svg {
-        fill: #162A45 !important;
-        color: #162A45 !important;
+    div[data-baseweb="select"] * { color: #162A45 !important; }
+    
+    /* Pinta os ícones (calendário, seta) de Azul Escuro */
+    div[data-baseweb="select"] svg, div[data-baseweb="base-input"] svg {
+        fill: #162A45 !important; color: #162A45 !important;
     }
-    
-    /* 5. BOTÕES DE AÇÃO (Escuros para contraste) */
-    [data-testid="stButton"] button,
-    [data-testid="stFormSubmitButton"] button {
+
+    /* 4. BOTÕES DE AÇÃO (Fundo Escuro para contraste) */
+    .stButton > button, .stFormSubmitButton > button {
         background-color: #162A45 !important; 
         border: 1px solid #162A45 !important;
         border-radius: 4px !important;
-        box-shadow: none !important; 
     }
-    [data-testid="stButton"] button *, 
-    [data-testid="stFormSubmitButton"] button * { 
-        color: #ffffff !important; 
-    }
+    .stButton > button *, .stFormSubmitButton > button * { color: #ffffff !important; }
 
-    /* 6. EFEITO AO CLICAR E HOVER */
-    [data-testid="stTextInput"] div[data-baseweb="base-input"]:focus-within,
-    [data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within,
-    [data-testid="stDateInput"] div[data-baseweb="base-input"]:focus-within,
-    [data-testid="stTextArea"] div[data-baseweb="base-input"]:focus-within {
+    /* 5. EFEITOS DE CLIQUE E RATO */
+    div[data-baseweb="input"]:focus-within,
+    div[data-baseweb="base-input"]:focus-within,
+    div[data-baseweb="select"] > div:focus-within {
         border: 1px solid #2a9d8f !important;
         box-shadow: 0 0 4px rgba(42, 157, 143, 0.4) !important;
     }
-
-    /* Hover nos botões (Verde Sadoque) */
-    [data-testid="stButton"] button:hover,
-    [data-testid="stFormSubmitButton"] button:hover {
+    .stButton > button:hover, .stFormSubmitButton > button:hover {
         border: 1px solid #2a9d8f !important;
     }
-    [data-testid="stButton"] button:hover *,
-    [data-testid="stFormSubmitButton"] button:hover * {
+    .stButton > button:hover *, .stFormSubmitButton > button:hover * {
         color: #2a9d8f !important;
     }
 
-    /* 7. TEXTOS DOS CARDS DE MÉTRICAS (Branco absoluto) */
-    [data-testid="stMetric"] * {
-        color: #ffffff !important;
-    }
-
-    /* 8. LINHAS DE SEPARAÇÃO ELEGANTES */
+    /* 6. MÉTRICAS E LINHAS */
+    [data-testid="stMetric"] * { color: #ffffff !important; }
     hr {
         border-bottom: 1px solid rgba(22, 42, 69, 0.2) !important;
         border-top: none !important;
