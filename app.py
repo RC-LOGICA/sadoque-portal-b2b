@@ -15,15 +15,15 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Fundo Cinza Chumbo + Linha Fininha)
+# DESIGN SYSTEM PROFISSIONAL (Fundo Mais Claro + Linha Fininha)
 # ==============================================================================
 estilo_flutuante = """
     <style>
     /* Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* FUNDO GERAL DO PORTAL (Cinza Chumbo / Slate) */
-    .stApp { background-color: #1C2434 !important; }
+    /* FUNDO GERAL DO PORTAL (Mais claro: Azul/Cinza Metálico) */
+    .stApp { background-color: #34495E !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
 
     .block-container {
@@ -40,12 +40,12 @@ estilo_flutuante = """
     .stFormSubmitButton > button,
     .stTextArea div[data-baseweb="base-input"] {
         background-color: #0B132B !important; 
-        border: 1px solid rgba(255, 255, 255, 0.2) !important; /* A linha fininha branca translúcida */
-        border-radius: 4px !important; /* Cantos menos arredondados ficam mais nítidos */
-        box-shadow: none !important; /* Mata a sombra nativa que engrossava a borda */
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 4px !important;
+        box-shadow: none !important; 
     }
     
-    /* Remove bordas extras das tags HTML internas para não duplicar linhas */
+    /* Remove bordas extras das tags HTML internas */
     .stTextInput input,
     .stDateInput input,
     .stTextArea textarea {
