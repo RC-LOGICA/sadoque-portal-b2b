@@ -36,7 +36,7 @@ estilo_flutuante = """
         pointer-events: none !important; 
     }
 
-        /* 1. FUNDO GERAL DO PORTAL (Azul Claríssimo e Elegante) */
+    /* 1. FUNDO GERAL DO PORTAL (Azul Claríssimo e Elegante) */
     .stApp { background-color: #EBF3F9 !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
 
@@ -53,32 +53,31 @@ estilo_flutuante = """
         padding-bottom: 2.5rem !important;
     }
 
-    /* 3. CAIXAS DE ENTRADA (Alterado para o Azul Claro da Imagem 2) */
+    /* 3. CAIXAS DE ENTRADA */
     .stTextInput div[data-baseweb="base-input"],
     .stSelectbox div[data-baseweb="select"] > div,
     .stDateInput div[data-baseweb="base-input"],
     .stTextArea div[data-baseweb="base-input"] {
-        background-color: #D1E4FA !important; /* Cor exata da imagem 2 */
-        border: 1px solid rgba(26, 46, 76, 0.15) !important;
+        background-color: #0B132B !important; 
+        border: 1px solid rgba(11, 19, 43, 0.1) !important;
         border-radius: 6px !important;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
         transition: all 0.2s ease-in-out !important;
     }
     
-    /* 4. TEXTO ESCURO NAS CAIXAS CLARAS (Invertido para garantir leitura impecável) */
+    /* 4. TEXTO BRANCO NAS CAIXAS */
     .stTextInput input,
     .stDateInput input,
     .stTextArea textarea {
         background-color: transparent !important;
         border: none !important;
-        color: #1A2E4C !important; /* Texto em azul escuro corporativo */
-        -webkit-text-fill-color: #1A2E4C !important;
-        caret-color: #1A2E4C !important; /* Cursor combinando com o texto */
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+        caret-color: #ffffff !important;
     }
-    .stSelectbox div[data-baseweb="select"] * { color: #1A2E4C !important; }
+    .stSelectbox div[data-baseweb="select"] * { color: #ffffff !important; }
 
-    /* Ícones das caixas (calendário, seta dropdown) em azul escuro para contrastar */
-    .stSelectbox svg, .stDateInput svg { fill: #1A2E4C !important; color: #1A2E4C !important; }
+    .stSelectbox svg, .stDateInput svg { fill: #ffffff !important; color: #ffffff !important; }
     
     /* 5. BOTÕES DE AÇÃO PREMIUM */
     .stButton > button, 
