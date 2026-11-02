@@ -9,6 +9,7 @@ import plotly.express as px
 import datetime
 from dotenv import load_dotenv
 from werkzeug.security import check_password_hash
+import base64
 
 # 1. Configuração inicial da página
 st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page_icon="📦", layout="wide")
@@ -22,11 +23,11 @@ estilo_flutuante = """
     /* Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 1. FUNDO GERAL DO PORTAL (Cinza Conforto / Azul Neblina Ergonômico) */
-    .stApp { background-color: #F4F6F9 !important; }
+    /* 1. FUNDO GERAL DO PORTAL (Azul Claríssimo e Elegante) */
+    .stApp { background-color: #EBF3F9 !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
 
-    /* 2. TIPOGRAFIA CORPORATIVA (Contraste suave em Azul Escuro, sem cansar a vista) */
+    /* 2. TIPOGRAFIA CORPORATIVA (Contraste suave em Azul Escuro) */
     [data-testid="stMarkdownContainer"] *,
     [data-testid="stWidgetLabel"] p {
         color: #1A2E4C !important;
@@ -68,14 +69,14 @@ estilo_flutuante = """
         fill: #ffffff !important; color: #ffffff !important;
     }
     
-    /* 5. BOTÕES DE AÇÃO PREMIUM (Adicionado efeito de Sombra Suave / Elevação) */
+    /* 5. BOTÕES DE AÇÃO PREMIUM (Sombra Suave / Elevação) */
     .stButton > button, 
     .stFormSubmitButton > button,
     [data-testid="stDownloadButton"] button {
         background-color: #0B132B !important; 
         border: 1px solid transparent !important;
         border-radius: 6px !important;
-        box-shadow: 0 4px 6px rgba(11, 19, 43, 0.15) !important; /* Dica Extra: Sombra projetada leve */
+        box-shadow: 0 4px 6px rgba(11, 19, 43, 0.15) !important; 
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     .stButton > button *, 
@@ -91,16 +92,16 @@ estilo_flutuante = """
     .stDateInput div[data-baseweb="base-input"]:focus-within,
     .stTextArea div[data-baseweb="base-input"]:focus-within {
         border: 1px solid #2A9D8F !important;
-        box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15) !important; /* Foco suave estilo Glow */
+        box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15) !important; 
     }
 
-    /* Hover nos botões (Muda borda e texto para Verde Sadoque com leve elevação) */
+    /* Hover nos botões (Verde Sadoque com leve elevação) */
     .stButton > button:hover,
     .stFormSubmitButton > button:hover,
     [data-testid="stDownloadButton"] button:hover {
         border: 1px solid #2A9D8F !important;
         background-color: #0F1A3A !important;
-        transform: translateY(-1px) !important; /* Leve suspensão ao passar o mouse */
+        transform: translateY(-1px) !important; 
         box-shadow: 0 6px 12px rgba(42, 157, 143, 0.2) !important;
     }
     .stButton > button:hover *,
@@ -109,18 +110,18 @@ estilo_flutuante = """
         color: #2A9D8F !important;
     }
 
-    /* 7. CARTÕES DE MÉTRICAS (Texto branco + Sombra suave para destacar do fundo claro) */
+    /* 7. CARTÕES DE MÉTRICAS */
     [data-testid="stMetric"] {
         background-color: #0B132B !important;
         padding: 1.25rem !important;
         border-radius: 8px !important;
-        box-shadow: 0 4px 12px rgba(11, 19, 43, 0.12) !important; /* Dica Extra: Eleva os cartões do fundo */
+        box-shadow: 0 4px 12px rgba(11, 19, 43, 0.12) !important; 
     }
     [data-testid="stMetric"] * {
         color: #ffffff !important;
     }
 
-    /* 8. DIVISORES DISCRETOS (Substitui linhas pesadas por divisores sutis) */
+    /* 8. DIVISORES DISCRETOS */
     hr {
         border-bottom: 1px solid rgba(26, 46, 76, 0.08) !important;
         border-top: none !important;
@@ -128,40 +129,22 @@ estilo_flutuante = """
     }
 
     /* ============================================================================== */
-    /* 9. RESPONSIVIDADE E ALINHAMENTO DE LOGOS (TELEMÓVEL E PC) */
+    /* 9. ALINHAMENTO RESPONSIVO E CORREÇÕES (TELEMÓVEL E PC) */
     /* ============================================================================== */
     
-    /* PC: Força a imagem da 3ª coluna (Logo Cliente) a alinhar à direita */
-    [data-testid="column"]:nth-child(3) [data-testid="stImage"] {
-        display: flex;
-        justify-content: flex-end;
+    /* LOGIN LOGO: Força a imagem a ficar perfeitamente centralizada dentro do formulário */
+    [data-testid="stForm"] [data-testid="stImage"] {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
     }
 
     /* TELEMÓVEL (Telas menores que 768px) */
     @media (max-width: 768px) {
-        /* Centraliza todas as logos e diminui o tamanho */
-        [data-testid="stImage"], 
-        [data-testid="column"]:nth-child(3) [data-testid="stImage"] {
-            display: flex !important;
-            justify-content: center !important;
-            width: 100% !important;
-        }
-        [data-testid="stImage"] img {
-            max-width: 140px !important;
-            height: auto !important;
-        }
-        
-        /* Centraliza os textos "Seja bem-vindo" que estavam encostados à direita */
-        div[style*="text-align: right"] {
-            text-align: center !important;
-        }
-
-        /* Reduz as margens do bloco de login para caber bem no telemóvel */
         [data-testid="stForm"] {
-            padding: 1.5rem !important;
+            padding: 1.5rem !important; /* Reduz margens no telemóvel */
         }
     }
-
     </style>
 """
 st.markdown(estilo_flutuante, unsafe_allow_html=True)
@@ -418,37 +401,24 @@ def ecra_login():
             padding: 2.5rem !important;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
         }
-        
-        /* Força todos os textos e labels do login a ficarem brancos */
         [data-testid="stForm"] p, 
         [data-testid="stForm"] div[data-testid="stWidgetLabel"] p,
-        [data-testid="stForm"] span {
-            color: #ffffff !important;
-        }
-
-        /* CORREÇÃO DOS CAMPOS DE TEXTO DO LOGIN (Fundo e texto visível) */
+        [data-testid="stForm"] span { color: #ffffff !important; }
+        
         [data-testid="stForm"] div[data-baseweb="base-input"] {
             background-color: #0B132B !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
             border-radius: 4px !important;
         }
-        
         [data-testid="stForm"] input {
             background-color: transparent !important;
             color: #ffffff !important;
-            -webkit-text-fill-color: #ffffff !important; /* Força texto branco no Chrome/Edge */
-            caret-color: #ffffff !important;             /* Força cursor branco */
+            -webkit-text-fill-color: #ffffff !important;
+            caret-color: #ffffff !important;             
             box-shadow: none !important;
         }
-
-        /* Efeito de foco (verde Sadoque) ao clicar para digitar */
-        [data-testid="stForm"] div[data-baseweb="base-input"]:focus-within {
-            border-color: #2a9d8f !important;
-        }
-
-        [data-testid="stImage"] img {
-            filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.6)) !important;
-        }
+        [data-testid="stForm"] div[data-baseweb="base-input"]:focus-within { border-color: #2a9d8f !important; }
+        [data-testid="stImage"] img { filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.6)) !important; }
         div[data-testid="InputInstructions"], div[data-testid="stInputInstructions"] {
             display: none !important; visibility: hidden !important;
         }
@@ -457,17 +427,16 @@ def ecra_login():
     st.markdown(estilo_caixa_login, unsafe_allow_html=True)
     st.markdown("<br><br>", unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([1.2, 1.0, 1.2])
+    # Mantém o formulário estreito no PC, mas responsivo no telemóvel
+    col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
         with st.form("form_login"):
-            c1, c_img, c2 = st.columns([1, 1.5, 1])
-            with c_img:
-                caminho_logo = "assets/logo.png" 
-                if os.path.exists(caminho_logo):
-                    # O CSS vai reduzi-la no telemóvel automaticamente
-                    st.image(caminho_logo, width=160) 
-                else:
-                    st.markdown("<h3 style='text-align: center; color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
+            caminho_logo = "assets/logo.png" 
+            if os.path.exists(caminho_logo):
+                # Imagem inserida diretamente. O CSS garante que fica 100% ao centro.
+                st.image(caminho_logo, width=140)
+            else:
+                st.markdown("<h3 style='text-align: center; color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
             
             st.markdown("<p style='text-align: center; color: #e2e8f0; font-size: 14px; margin-top: 10px; margin-bottom: 20px;'>Bem-vindo ao sistema de rastreio corporativo.</p>", unsafe_allow_html=True)
             
@@ -502,38 +471,46 @@ def ecra_dashboard():
             border-radius: 8px !important; padding: 15px 20px !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3) !important;
         }
-        [data-testid="column"] { align-self: center; }
         </style>
     """
     st.markdown(estilos_dashboard, unsafe_allow_html=True)
 
     # ---------------------------------------------------------
-    # LAYOUT DAS LOGOS - Tamanho cravado em píxeis (Sem alargar)
+    # CABEÇALHO FLEXBOX: Cola as logos nas bordas extremas (PC e Telemóvel)
     # ---------------------------------------------------------
-    col_sad, col_centro, col_cli = st.columns([1, 2, 1])
-    
-    with col_sad:
-        caminho_logo_sadoque = "assets/logo.png"
-        if os.path.exists(caminho_logo_sadoque):
-            # Trava a logo da Sadoque num tamanho pequeno e proporcional
-            st.image(caminho_logo_sadoque, width=110) 
-        else:
-            st.markdown("<h3 style='color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
+    caminho_logo_sadoque = "assets/logo.png"
+    nome_cliente_ativo = st.session_state.get('nome_empresa', 'Cliente')
+    cnpj_ativo = st.session_state.get('cnpj_ativo', '')
+    caminho_logo_cliente = f"assets/{cnpj_ativo}.png"
 
-    with col_cli:
-        nome_cliente_ativo = st.session_state.get('nome_empresa', 'Cliente')
-        cnpj_ativo = st.session_state.get('cnpj_ativo', '')
-        caminho_logo_cliente = f"assets/{cnpj_ativo}.png"
-        
-        st.markdown(f"<div style='text-align: right; margin-bottom: 5px; color: #a3b1c6;'>Seja bem-vindo,</div>", unsafe_allow_html=True)
-        if os.path.exists(caminho_logo_cliente):
-            # Sem subcolunas: o CSS faz o alinhamento de forma nativa e responsiva
-            st.image(caminho_logo_cliente, width=170)
-        else:
-            # Corrigido para Azul Escuro (#162A45) caso não exista logo, para ler no fundo claro
-            st.markdown(f"<div style='text-align: right; font-weight: bold; font-size: 18px; color: #162A45;'>{nome_cliente_ativo}</div>", unsafe_allow_html=True)
+    b64_sad = ""
+    if os.path.exists(caminho_logo_sadoque):
+        with open(caminho_logo_sadoque, "rb") as f:
+            b64_sad = base64.b64encode(f.read()).decode()
 
-    st.markdown("<div style='text-align: center; color: #a3b1c6; font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 5px;'>Inteligência Logística e Rastreio (B2B)</div>", unsafe_allow_html=True)
+    b64_cli = ""
+    if os.path.exists(caminho_logo_cliente):
+        with open(caminho_logo_cliente, "rb") as f:
+            b64_cli = base64.b64encode(f.read()).decode()
+
+    # Define o tamanho máximo das imagens para que ajustem na tela do telemóvel
+    img_sad_html = f'<img src="data:image/png;base64,{b64_sad}" style="max-width: 100px; width: 100%; height: auto;">' if b64_sad else "<h3 style='color: #1A2E4C; margin:0;'>📦 SADOQUE</h3>"
+    img_cli_html = f'<img src="data:image/png;base64,{b64_cli}" style="max-width: 150px; width: 100%; height: auto; object-fit: contain;">' if b64_cli else f"<div style='font-weight: bold; font-size: 18px; color: #1A2E4C;'>{nome_cliente_ativo}</div>"
+
+    html_header = f"""
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: flex-start; align-items: center; width: 48%;">
+            {img_sad_html}
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; width: 48%; text-align: right;">
+            <span style='color: #a3b1c6; font-size: 13px; margin-bottom: 2px;'>Seja bem-vindo,</span>
+            {img_cli_html}
+        </div>
+    </div>
+    """
+    st.markdown(html_header, unsafe_allow_html=True)
+
+    st.markdown("<div style='text-align: center; color: #a3b1c6; font-size: 18px; font-weight: bold; margin-top: 10px; margin-bottom: 5px;'>Inteligência Logística e Rastreio (B2B)</div>", unsafe_allow_html=True)
     st.markdown("---")
     
     if st.session_state.get('perfil_acesso', 'COMPLETO') == 'COMPLETO':
@@ -675,10 +652,10 @@ def ecra_dashboard():
                         st.markdown(f"*{row['status']}*")
                         st.markdown(f"📍 *{cidade_exibicao}*")
                     
-                    # Correção: Substituído st.caption por st.markdown para forçar o texto Azul Escuro
                     if obs.lower() not in ['nan', 'none', 'nulo', '']:
                         st.markdown(f"📝 *Obs: {obs}*")
 
+            # Módulo de Chat visível APENAS para contas COMPLETO. O else foi apagado.
             if st.session_state.get('perfil_acesso', 'COMPLETO') == 'COMPLETO':
                 exibir_chat(nf_selecionada, st.session_state['cnpj_ativo'], st.session_state['nome_empresa'])
 
