@@ -20,12 +20,20 @@ load_dotenv()
 # ==============================================================================
 estilo_flutuante = """
     <style>
-    /* 0. OCULTAR ELEMENTOS NATIVOS DO STREAMLIT E DA CLOUD (Selos flutuantes, Menus) */
-    [data-testid="stHeader"], footer, #MainMenu, 
-    [data-testid="stToolbar"], [data-testid="stDeployButton"], 
-    .viewerBadge_container, .viewerBadge_link { 
+    /* 0. BLOQUEIO AGRESSIVO DOS SELOS DA CLOUD E MENUS */
+    [data-testid="stHeader"], footer, #MainMenu { display: none !important; }
+    [data-testid="stToolbar"], [data-testid="stDecoration"] { display: none !important; }
+    
+    /* Esconde botões padrões conhecidos */
+    .stDeployButton, [data-testid="stDeployButton"] { display: none !important; }
+    .viewerBadge_container, .viewerBadge_link, div[class^="viewerBadge"] { display: none !important; }
+    
+    /* "Tiro de canhão": Esconde QUALQUER elemento injetado que fique fixo no canto inferior direito */
+    div[style*="position: fixed"][style*="bottom:"][style*="right:"] { 
         display: none !important; 
         visibility: hidden !important; 
+        opacity: 0 !important; 
+        pointer-events: none !important; 
     }
 
     /* 1. FUNDO GERAL DO PORTAL (Azul Claríssimo e Elegante) */
@@ -45,7 +53,7 @@ estilo_flutuante = """
         padding-bottom: 2.5rem !important;
     }
 
-    /* 3. CAIXAS DE ENTRADA (Fundo escuro preservado com bordas sutis) */
+    /* 3. CAIXAS DE ENTRADA */
     .stTextInput div[data-baseweb="base-input"],
     .stSelectbox div[data-baseweb="select"] > div,
     .stDateInput div[data-baseweb="base-input"],
@@ -57,7 +65,7 @@ estilo_flutuante = """
         transition: all 0.2s ease-in-out !important;
     }
     
-    /* 4. TEXTO E CURSOR BRANCO ABSOLUTO DENTRO DAS CAIXAS ESCURAS */
+    /* 4. TEXTO BRANCO NAS CAIXAS */
     .stTextInput input,
     .stDateInput input,
     .stTextArea textarea {
@@ -69,12 +77,9 @@ estilo_flutuante = """
     }
     .stSelectbox div[data-baseweb="select"] * { color: #ffffff !important; }
 
-    /* Ícones das caixas (calendário, seta dropdown) em branco */
-    .stSelectbox svg, .stDateInput svg {
-        fill: #ffffff !important; color: #ffffff !important;
-    }
+    .stSelectbox svg, .stDateInput svg { fill: #ffffff !important; color: #ffffff !important; }
     
-    /* 5. BOTÕES DE AÇÃO PREMIUM (Sombra Suave / Elevação) */
+    /* 5. BOTÕES DE AÇÃO PREMIUM */
     .stButton > button, 
     .stFormSubmitButton > button,
     [data-testid="stDownloadButton"] button {
@@ -86,12 +91,9 @@ estilo_flutuante = """
     }
     .stButton > button *, 
     .stFormSubmitButton > button *,
-    [data-testid="stDownloadButton"] button * { 
-        color: #ffffff !important; 
-        font-weight: 500 !important;
-    }
+    [data-testid="stDownloadButton"] button * { color: #ffffff !important; font-weight: 500 !important; }
 
-    /* 6. INTERAÇÃO MODERNA (Foco e Hover dinâmicos) */
+    /* 6. INTERAÇÃO MODERNA (Foco e Hover) */
     .stTextInput div[data-baseweb="base-input"]:focus-within,
     .stSelectbox div[data-baseweb="select"] > div:focus-within,
     .stDateInput div[data-baseweb="base-input"]:focus-within,
@@ -100,7 +102,6 @@ estilo_flutuante = """
         box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15) !important; 
     }
 
-    /* Hover nos botões (Verde Sadoque com leve elevação) */
     .stButton > button:hover,
     .stFormSubmitButton > button:hover,
     [data-testid="stDownloadButton"] button:hover {
@@ -111,9 +112,7 @@ estilo_flutuante = """
     }
     .stButton > button:hover *,
     .stFormSubmitButton > button:hover *,
-    [data-testid="stDownloadButton"] button:hover * {
-        color: #2A9D8F !important;
-    }
+    [data-testid="stDownloadButton"] button:hover * { color: #2A9D8F !important; }
 
     /* 7. CARTÕES DE MÉTRICAS */
     [data-testid="stMetric"] {
@@ -122,9 +121,7 @@ estilo_flutuante = """
         border-radius: 8px !important;
         box-shadow: 0 4px 12px rgba(11, 19, 43, 0.12) !important; 
     }
-    [data-testid="stMetric"] * {
-        color: #ffffff !important;
-    }
+    [data-testid="stMetric"] * { color: #ffffff !important; }
 
     /* 8. DIVISORES DISCRETOS */
     hr {
@@ -136,15 +133,20 @@ estilo_flutuante = """
     /* ============================================================================== */
     /* 9. ALINHAMENTO RESPONSIVO E CORREÇÕES (TELEMÓVEL E PC) */
     /* ============================================================================== */
+    
+    [data-testid="stForm"] [data-testid="stImage"] {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
 
-    /* TELEMÓVEL (Telas menores que 768px) */
     @media (max-width: 768px) {
         .block-container {
-            padding-top: 0.5rem !important; /* CORREÇÃO: Sobe a interface e diminui o espaço topo */
+            padding-top: 0.5rem !important; /* Mantém o sistema bem encostado acima */
             padding-bottom: 1rem !important;
         }
         [data-testid="stForm"] {
-            padding: 1.5rem !important; /* Reduz margens do login no telemóvel */
+            padding: 1.5rem !important;
         }
     }
     </style>
