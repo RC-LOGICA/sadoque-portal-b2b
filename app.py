@@ -632,8 +632,6 @@ def ecra_dashboard():
 
             if st.session_state.get('perfil_acesso', 'COMPLETO') == 'COMPLETO':
                 exibir_chat(nf_selecionada, st.session_state['cnpj_ativo'], st.session_state['nome_empresa'])
-            else:
-                st.info("ℹ️ O módulo de Canal de Atendimento (Chat) não está disponível para este nível de acesso.")
 
 # ==============================================================================
 # CONTROLO DE FLUXO
