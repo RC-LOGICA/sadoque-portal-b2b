@@ -22,8 +22,8 @@ estilo_flutuante = """
     /* Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 1. FUNDO GERAL DO PORTAL (Branco Gelo) */
-    .stApp { background-color: #F4F7F6 !important; }
+    /* 1. FUNDO GERAL DO PORTAL (Azul Claríssimo) */
+    .stApp { background-color: #EBF3F9 !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
 
     /* 2. INVERTER A COR DO TEXTO (Para ler no fundo claro, usamos Azul Escuro) */
