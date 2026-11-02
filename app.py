@@ -120,28 +120,12 @@ estilo_flutuante = """
         color: #ffffff !important;
     }
 
-        /* 8. LINHAS DE SEPARAÇÃO ELEGANTES (Sutis com espaçamento moderno) */
+    /* 8. DIVISORES DISCRETOS (Substitui linhas pesadas por divisores sutis) */
     hr {
-        border: none !important;
-        border-top: 1px solid rgba(26, 46, 76, 0.08) !important; /* Linha extremamente suave */
-        margin: 2.5rem 0 !important; /* Espaçamento generoso para respirar os blocos */
-        position: relative;
+        border-bottom: 1px solid rgba(26, 46, 76, 0.08) !important;
+        border-top: none !important;
+        margin: 2.5em 0 !important;
     }
-
-    /* Opcional: Adiciona um pequeno detalhe minimalista no centro da linha */
-    hr::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        top: -3px;
-        transform: translateX(-50%);
-        width: 24px;
-        height: 5px;
-        background-color: #2A9D8F; /* Toque discreto no verde da sua identidade */
-        border-radius: 4px;
-        opacity: 0.6;
-    }
-
     </style>
 """
 st.markdown(estilo_flutuante, unsafe_allow_html=True)
