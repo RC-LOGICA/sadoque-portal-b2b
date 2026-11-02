@@ -123,17 +123,29 @@ estilo_flutuante = """
     }
     [data-testid="stMetric"] * { color: #ffffff !important; }
 
-    /* 8. DIVISORES DISCRETOS */
+    /* 8. DIVISORES DISCRETOS (Refinados com traço central moderno) */
     hr {
-        border-bottom: 1px solid rgba(26, 46, 76, 0.08) !important;
-        border-top: none !important;
-        margin: 2.5em 0 !important;
+        border: none !important;
+        border-top: 1px solid rgba(26, 46, 76, 0.08) !important;
+        margin: 2.5rem 0 !important;
+        position: relative !important;
+    }
+    hr::after {
+        content: "" !important;
+        position: absolute !important;
+        left: 50% !important;
+        top: -3px !important;
+        transform: translateX(-50%) !important;
+        width: 28px !important;
+        height: 5px !important;
+        background-color: #2A9D8F !important;
+        border-radius: 4px !important;
+        opacity: 0.5 !important;
     }
 
     /* ============================================================================== */
     /* 9. ALINHAMENTO RESPONSIVO E CORREÇÕES (TELEMÓVEL E PC) */
     /* ============================================================================== */
-    
     [data-testid="stForm"] [data-testid="stImage"] {
         display: flex !important;
         justify-content: center !important;
@@ -142,12 +154,43 @@ estilo_flutuante = """
 
     @media (max-width: 768px) {
         .block-container {
-            padding-top: 0.5rem !important; /* Mantém o sistema bem encostado acima */
+            padding-top: 0.5rem !important;
             padding-bottom: 1rem !important;
         }
         [data-testid="stForm"] {
             padding: 1.5rem !important;
         }
+    }
+
+    /* ============================================================================== */
+    /* 10. REFINAMENTO: CONTAINERS DE FILTROS, TABELAS E GRÁFICOS (DICA EXTRA) */
+    /* ============================================================================== */
+    
+    /* Moldura em formato de Card Soft para os Formulários/Filtros na Sidebar ou Corpo */
+    [data-testid="stForm"], .stSidebar [data-testid="stExpander"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid rgba(26, 46, 76, 0.05) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 10px 25px rgba(26, 46, 76, 0.04) !important;
+        padding: 2rem !important;
+    }
+
+    /* Customização de Tabelas Nativas (st.dataframe e st.table) */
+    [data-testid="stDataFrameDataframe"], div[data-testid="stTable"] table {
+        background-color: #FFFFFF !important;
+        border: 1px solid rgba(26, 46, 76, 0.05) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 16px rgba(26, 46, 76, 0.03) !important;
+        overflow: hidden !important;
+    }
+
+    /* Ajuste de harmonia para Gráficos Injetados (Plotly, Altair, etc.) */
+    [data-testid="stArrowVegaLiteChart"], [data-testid="stPlotlyChart"] {
+        background-color: #FFFFFF !important;
+        border: 1px solid rgba(26, 46, 76, 0.04) !important;
+        border-radius: 10px !important;
+        box-shadow: 0 6px 20px rgba(26, 46, 76, 0.03) !important;
+        padding: 1rem !important;
     }
     </style>
 """
