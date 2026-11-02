@@ -160,7 +160,7 @@ def validar_login(utilizador, palavra_passe):
         conn = conectar_banco()
         cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute("""
-            SELECT id, cnpj_embarcador, senha_hash, nome_fantasia 
+            SELECT id, cnpj_embarcador, senha_hash, nome_fantasia, perfil_acesso 
             FROM usuarios_web 
             WHERE login = %s AND ativo = TRUE
         """, (utilizador,))
@@ -348,6 +348,7 @@ def exibir_chat(nf_selecionada, cnpj_ativo, nome_empresa):
 if 'logado' not in st.session_state: st.session_state['logado'] = False
 if 'cnpj_ativo' not in st.session_state: st.session_state['cnpj_ativo'] = None
 if 'nome_empresa' not in st.session_state: st.session_state['nome_empresa'] = None
+if 'perfil_acesso' not in st.session_state: st.session_state['perfil_acesso'] = 'COMPLETO'
 
 # Inicializa as variáveis de filtro vazias na sessão caso não existam
 if 'filtro_texto' not in st.session_state: st.session_state['filtro_texto'] = ""
@@ -433,6 +434,7 @@ def ecra_login():
                         st.session_state['logado'] = True
                         st.session_state['cnpj_ativo'] = dados_cliente['cnpj_embarcador']
                         st.session_state['nome_empresa'] = dados_cliente['nome_fantasia']
+                        st.session_state['perfil_acesso'] = dados_cliente.get('perfil_acesso', 'COMPLETO')
                         st.rerun()
                     else:
                         st.error("Utilizador ou palavra-passe incorretos.")
@@ -485,10 +487,11 @@ def ecra_dashboard():
     st.markdown("<div style='text-align: center; color: #a3b1c6; font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 5px;'>Inteligência Logística e Rastreio (B2B)</div>", unsafe_allow_html=True)
     st.markdown("---")
     
-    nfs_com_resposta = verificar_alertas_chat(st.session_state['cnpj_ativo'])
-    if nfs_com_resposta:
-        nfs_str = ", ".join(nfs_com_resposta)
-        st.warning(f"🔔 **NOVA MENSAGEM DO SUPORTE:** A Sadoque respondeu recentemente no chat das Notas Fiscais: **{nfs_str}**. Desça até o detalhe do rastreio para ler e responder.", icon="🚨")
+    if st.session_state.get('perfil_acesso', 'COMPLETO') == 'COMPLETO':
+        nfs_com_resposta = verificar_alertas_chat(st.session_state['cnpj_ativo'])
+        if nfs_com_resposta:
+            nfs_str = ", ".join(nfs_com_resposta)
+            st.warning(f"🔔 **NOVA MENSAGEM DO SUPORTE:** A Sadoque respondeu recentemente no chat das Notas Fiscais: **{nfs_str}**. Desça até o detalhe do rastreio para ler e responder.", icon="🚨")
     
     df_cargas = buscar_dados_cargas(st.session_state['cnpj_ativo'])
     
@@ -627,7 +630,10 @@ def ecra_dashboard():
                     if obs.lower() not in ['nan', 'none', 'nulo', '']:
                         st.markdown(f"📝 *Obs: {obs}*")
 
-            exibir_chat(nf_selecionada, st.session_state['cnpj_ativo'], st.session_state['nome_empresa'])
+            if st.session_state.get('perfil_acesso', 'COMPLETO') == 'COMPLETO':
+                exibir_chat(nf_selecionada, st.session_state['cnpj_ativo'], st.session_state['nome_empresa'])
+            else:
+                st.info("ℹ️ O módulo de Canal de Atendimento (Chat) não está disponível para este nível de acesso.")
 
 # ==============================================================================
 # CONTROLO DE FLUXO
