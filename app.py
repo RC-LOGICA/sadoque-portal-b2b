@@ -23,7 +23,7 @@ estilo_flutuante = """
     [data-testid="stHeader"], footer { display: none !important; }
 
     /* 1. FUNDO GERAL DO PORTAL (Azul Claríssimo) */
-    .stApp { background-color: #EBF3F9 !important; }
+    .stApp { background-color: #E3F2FD !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
 
     /* 2. INVERTER A COR DO TEXTO (Para ler no fundo claro, usamos Azul Escuro) */
