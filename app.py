@@ -126,6 +126,42 @@ estilo_flutuante = """
         border-top: none !important;
         margin: 2.5em 0 !important;
     }
+
+    /* ============================================================================== */
+    /* 9. RESPONSIVIDADE E ALINHAMENTO DE LOGOS (TELEMÓVEL E PC) */
+    /* ============================================================================== */
+    
+    /* PC: Força a imagem da 3ª coluna (Logo Cliente) a alinhar à direita */
+    [data-testid="column"]:nth-child(3) [data-testid="stImage"] {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* TELEMÓVEL (Telas menores que 768px) */
+    @media (max-width: 768px) {
+        /* Centraliza todas as logos e diminui o tamanho */
+        [data-testid="stImage"], 
+        [data-testid="column"]:nth-child(3) [data-testid="stImage"] {
+            display: flex !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+        [data-testid="stImage"] img {
+            max-width: 140px !important;
+            height: auto !important;
+        }
+        
+        /* Centraliza os textos "Seja bem-vindo" que estavam encostados à direita */
+        div[style*="text-align: right"] {
+            text-align: center !important;
+        }
+
+        /* Reduz as margens do bloco de login para caber bem no telemóvel */
+        [data-testid="stForm"] {
+            padding: 1.5rem !important;
+        }
+    }
+
     </style>
 """
 st.markdown(estilo_flutuante, unsafe_allow_html=True)
@@ -428,7 +464,8 @@ def ecra_login():
             with c_img:
                 caminho_logo = "assets/logo.png" 
                 if os.path.exists(caminho_logo):
-                    st.image(caminho_logo)
+                    # O CSS vai reduzi-la no telemóvel automaticamente
+                    st.image(caminho_logo, width=160) 
                 else:
                     st.markdown("<h3 style='text-align: center; color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
             
@@ -490,12 +527,11 @@ def ecra_dashboard():
         
         st.markdown(f"<div style='text-align: right; margin-bottom: 5px; color: #a3b1c6;'>Seja bem-vindo,</div>", unsafe_allow_html=True)
         if os.path.exists(caminho_logo_cliente):
-            # Usa subcolunas para empurrar a logo do cliente para a direita e trava em 170px
-            col_espaço, col_img = st.columns([0.5, 1.5])
-            with col_img:
-                st.image(caminho_logo_cliente, width=170)
+            # Sem subcolunas: o CSS faz o alinhamento de forma nativa e responsiva
+            st.image(caminho_logo_cliente, width=170)
         else:
-            st.markdown(f"<div style='text-align: right; font-weight: bold; font-size: 18px; color: #ffffff;'>{nome_cliente_ativo}</div>", unsafe_allow_html=True)
+            # Corrigido para Azul Escuro (#162A45) caso não exista logo, para ler no fundo claro
+            st.markdown(f"<div style='text-align: right; font-weight: bold; font-size: 18px; color: #162A45;'>{nome_cliente_ativo}</div>", unsafe_allow_html=True)
 
     st.markdown("<div style='text-align: center; color: #a3b1c6; font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 5px;'>Inteligência Logística e Rastreio (B2B)</div>", unsafe_allow_html=True)
     st.markdown("---")
