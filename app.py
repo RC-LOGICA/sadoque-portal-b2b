@@ -20,8 +20,13 @@ load_dotenv()
 # ==============================================================================
 estilo_flutuante = """
     <style>
-    /* Oculta barra superior e rodapé padrão do Streamlit */
-    [data-testid="stHeader"], footer { display: none !important; }
+    /* 0. OCULTAR ELEMENTOS NATIVOS DO STREAMLIT E DA CLOUD (Selos flutuantes, Menus) */
+    [data-testid="stHeader"], footer, #MainMenu, 
+    [data-testid="stToolbar"], [data-testid="stDeployButton"], 
+    .viewerBadge_container, .viewerBadge_link { 
+        display: none !important; 
+        visibility: hidden !important; 
+    }
 
     /* 1. FUNDO GERAL DO PORTAL (Azul Claríssimo e Elegante) */
     .stApp { background-color: #EBF3F9 !important; }
@@ -131,18 +136,15 @@ estilo_flutuante = """
     /* ============================================================================== */
     /* 9. ALINHAMENTO RESPONSIVO E CORREÇÕES (TELEMÓVEL E PC) */
     /* ============================================================================== */
-    
-    /* LOGIN LOGO: Força a imagem a ficar perfeitamente centralizada dentro do formulário */
-    [data-testid="stForm"] [data-testid="stImage"] {
-        display: flex !important;
-        justify-content: center !important;
-        width: 100% !important;
-    }
 
     /* TELEMÓVEL (Telas menores que 768px) */
     @media (max-width: 768px) {
+        .block-container {
+            padding-top: 0.5rem !important; /* CORREÇÃO: Sobe a interface e diminui o espaço topo */
+            padding-bottom: 1rem !important;
+        }
         [data-testid="stForm"] {
-            padding: 1.5rem !important; /* Reduz margens no telemóvel */
+            padding: 1.5rem !important; /* Reduz margens do login no telemóvel */
         }
     }
     </style>
@@ -418,7 +420,6 @@ def ecra_login():
             box-shadow: none !important;
         }
         [data-testid="stForm"] div[data-baseweb="base-input"]:focus-within { border-color: #2a9d8f !important; }
-        [data-testid="stImage"] img { filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.6)) !important; }
         div[data-testid="InputInstructions"], div[data-testid="stInputInstructions"] {
             display: none !important; visibility: hidden !important;
         }
@@ -427,14 +428,15 @@ def ecra_login():
     st.markdown(estilo_caixa_login, unsafe_allow_html=True)
     st.markdown("<br><br>", unsafe_allow_html=True)
     
-    # Mantém o formulário estreito no PC, mas responsivo no telemóvel
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
         with st.form("form_login"):
+            # CORREÇÃO: Renderiza a imagem via HTML para garantir alinhamento perfeito (margin: 0 auto)
             caminho_logo = "assets/logo.png" 
             if os.path.exists(caminho_logo):
-                # Imagem inserida diretamente. O CSS garante que fica 100% ao centro.
-                st.image(caminho_logo, width=140)
+                with open(caminho_logo, "rb") as f:
+                    b64_sad = base64.b64encode(f.read()).decode()
+                st.markdown(f'<div style="width: 100%; text-align: center;"><img src="data:image/png;base64,{b64_sad}" style="max-width: 140px; margin: 0 auto; display: block; filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.6));"></div>', unsafe_allow_html=True)
             else:
                 st.markdown("<h3 style='text-align: center; color: #ffb703;'>📦 SADOQUE</h3>", unsafe_allow_html=True)
             
@@ -655,7 +657,6 @@ def ecra_dashboard():
                     if obs.lower() not in ['nan', 'none', 'nulo', '']:
                         st.markdown(f"📝 *Obs: {obs}*")
 
-            # Módulo de Chat visível APENAS para contas COMPLETO. O else foi apagado.
             if st.session_state.get('perfil_acesso', 'COMPLETO') == 'COMPLETO':
                 exibir_chat(nf_selecionada, st.session_state['cnpj_ativo'], st.session_state['nome_empresa'])
 
