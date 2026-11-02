@@ -15,38 +15,40 @@ st.set_page_config(page_title="Portal do Embarcador | SADOQUE TRANSPORTES", page
 load_dotenv()
 
 # ==============================================================================
-# DESIGN SYSTEM PROFISSIONAL (Correção Definitiva de Texto e Clique)
+# DESIGN SYSTEM PREMIUM (Ergonômico, Elegante e Moderno)
 # ==============================================================================
 estilo_flutuante = """
     <style>
     /* Oculta barra superior e rodapé padrão do Streamlit */
     [data-testid="stHeader"], footer { display: none !important; }
 
-    /* 1. FUNDO GERAL DO PORTAL (Azul Claríssimo) */
-    .stApp { background-color: #F0F4F8 !important; }
+    /* 1. FUNDO GERAL DO PORTAL (Cinza Conforto / Azul Neblina Ergonômico) */
+    .stApp { background-color: #F4F6F9 !important; }
     [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: transparent !important; }
 
-    /* 2. INVERTER A COR DO TEXTO (Para ler no fundo claro, usamos Azul Escuro) */
+    /* 2. TIPOGRAFIA CORPORATIVA (Contraste suave em Azul Escuro, sem cansar a vista) */
     [data-testid="stMarkdownContainer"] *,
     [data-testid="stWidgetLabel"] p {
-        color: #162A45 !important;
+        color: #1A2E4C !important;
+        font-family: 'Inter', -apple-system, sans-serif !important;
     }
 
     .block-container {
         max-width: 1250px !important;
-        padding-top: 3rem !important;
-        padding-bottom: 3rem !important;
+        padding-top: 2.5rem !important;
+        padding-bottom: 2.5rem !important;
     }
 
-    /* 3. QUADRADO COM LINHA FININHA (Caixas e Botões mantêm fundo escuro) */
+    /* 3. CAIXAS DE ENTRADA (Fundo escuro preservado com bordas sutis) */
     .stTextInput div[data-baseweb="base-input"],
     .stSelectbox div[data-baseweb="select"] > div,
     .stDateInput div[data-baseweb="base-input"],
     .stTextArea div[data-baseweb="base-input"] {
         background-color: #0B132B !important; 
-        border: 1px solid rgba(22, 42, 69, 0.3) !important;
-        border-radius: 4px !important;
-        box-shadow: none !important; 
+        border: 1px solid rgba(11, 19, 43, 0.1) !important;
+        border-radius: 6px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+        transition: all 0.2s ease-in-out !important;
     }
     
     /* 4. TEXTO E CURSOR BRANCO ABSOLUTO DENTRO DAS CAIXAS ESCURAS */
@@ -56,9 +58,8 @@ estilo_flutuante = """
         background-color: transparent !important;
         border: none !important;
         color: #ffffff !important;
-        -webkit-text-fill-color: #ffffff !important; /* Resolve o texto apagado no Chrome/Edge */
-        caret-color: #ffffff !important;             /* Força o cursor a piscar em branco */
-        box-shadow: none !important;
+        -webkit-text-fill-color: #ffffff !important;
+        caret-color: #ffffff !important;
     }
     .stSelectbox div[data-baseweb="select"] * { color: #ffffff !important; }
 
@@ -67,51 +68,63 @@ estilo_flutuante = """
         fill: #ffffff !important; color: #ffffff !important;
     }
     
-    /* 5. BOTÕES DE AÇÃO COMPLETOS (Força o texto interno a ficar branco) */
+    /* 5. BOTÕES DE AÇÃO PREMIUM (Adicionado efeito de Sombra Suave / Elevação) */
     .stButton > button, 
     .stFormSubmitButton > button,
     [data-testid="stDownloadButton"] button {
         background-color: #0B132B !important; 
-        border: 1px solid rgba(22, 42, 69, 0.3) !important;
-        border-radius: 4px !important;
+        border: 1px solid transparent !important;
+        border-radius: 6px !important;
+        box-shadow: 0 4px 6px rgba(11, 19, 43, 0.15) !important; /* Dica Extra: Sombra projetada leve */
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     .stButton > button *, 
     .stFormSubmitButton > button *,
     [data-testid="stDownloadButton"] button * { 
         color: #ffffff !important; 
+        font-weight: 500 !important;
     }
 
-    /* 6. EFEITO AO CLICAR E HOVER */
+    /* 6. INTERAÇÃO MODERNA (Foco e Hover dinâmicos) */
     .stTextInput div[data-baseweb="base-input"]:focus-within,
     .stSelectbox div[data-baseweb="select"] > div:focus-within,
     .stDateInput div[data-baseweb="base-input"]:focus-within,
     .stTextArea div[data-baseweb="base-input"]:focus-within {
-        border: 1px solid #2a9d8f !important;
-        box-shadow: 0 0 2px rgba(42, 157, 143, 0.5) !important; /* Sombra leve que não bloqueia clique */
+        border: 1px solid #2A9D8F !important;
+        box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15) !important; /* Foco suave estilo Glow */
     }
 
-    /* Hover nos botões (Muda borda e texto para Verde Sadoque) */
+    /* Hover nos botões (Muda borda e texto para Verde Sadoque com leve elevação) */
     .stButton > button:hover,
     .stFormSubmitButton > button:hover,
     [data-testid="stDownloadButton"] button:hover {
-        border: 1px solid #2a9d8f !important;
+        border: 1px solid #2A9D8F !important;
+        background-color: #0F1A3A !important;
+        transform: translateY(-1px) !important; /* Leve suspensão ao passar o mouse */
+        box-shadow: 0 6px 12px rgba(42, 157, 143, 0.2) !important;
     }
     .stButton > button:hover *,
     .stFormSubmitButton > button:hover *,
     [data-testid="stDownloadButton"] button:hover * {
-        color: #2a9d8f !important;
+        color: #2A9D8F !important;
     }
 
-    /* 7. MANTÉM OS TEXTOS DAS MÉTRICAS BRANCOS (Pois os cartões são escuros) */
+    /* 7. CARTÕES DE MÉTRICAS (Texto branco + Sombra suave para destacar do fundo claro) */
+    [data-testid="stMetric"] {
+        background-color: #0B132B !important;
+        padding: 1.25rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(11, 19, 43, 0.12) !important; /* Dica Extra: Eleva os cartões do fundo */
+    }
     [data-testid="stMetric"] * {
         color: #ffffff !important;
     }
 
-    /* 8. LINHAS DE SEPARAÇÃO ELEGANTES (Visíveis no fundo claro) */
+    /* 8. DIVISORES DISCRETOS (Substitui linhas pesadas por divisores sutis) */
     hr {
-        border-bottom: 1px solid rgba(22, 42, 69, 0.3) !important;
+        border-bottom: 1px solid rgba(26, 46, 76, 0.08) !important;
         border-top: none !important;
-        margin: 2em 0 !important;
+        margin: 2.5em 0 !important;
     }
     </style>
 """
