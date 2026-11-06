@@ -219,30 +219,25 @@ def buscar_dados_cargas(cnpj_cliente):
         
         cursor.execute("""
             SELECT 
-                REGEXP_REPLACE(c.numero_nf::TEXT, '[^0-9]', '', 'g') as "NF",
-                MAX(c.cliente) as "Destinatário",
-                MAX(c.cidade) || ' / ' || MAX(c.estado) as "Cidade de Destino",
-                MAX(COALESCE(c.qtd_volumes, 0)) as "Volumes", 
-                MAX(COALESCE(NULLIF(c.data_prev_entrega::TEXT, ''), 'Em cálculo...')) as "Previsão",
+                REGEXP_REPLACE(numero_nf::TEXT, '[^0-9]', '', 'g') as "NF",
+                MAX(cliente) as "Destinatário",
+                MAX(cidade) || ' / ' || MAX(estado) as "Cidade de Destino",
+                MAX(COALESCE(qtd_volumes, 0)) as "Volumes", 
+                MAX(COALESCE(NULLIF(data_prev_entrega::TEXT, ''), 'Em cálculo...')) as "Previsão",
+                MAX(COALESCE(NULLIF(data_baixa::TEXT, ''), 'Pendente')) as "Finalizado Em",
                 MAX(
                     CASE 
-                        WHEN c.status_carregamento IS NULL THEN 'Na Base'
-                        WHEN TRIM(c.status_carregamento) = '' THEN 'Na Base'
-                        WHEN LOWER(TRIM(c.status_carregamento)) = 'nan' THEN 'Na Base'
-                        WHEN c.status_carregamento ILIKE '%%TR_NSITO%%' THEN 'Em Trânsito'
-                        WHEN c.status_carregamento ILIKE '%%BASE%%' THEN 'Na Base'
-                        ELSE UPPER(TRIM(c.status_carregamento))
+                        WHEN status_carregamento IS NULL THEN 'Na Base'
+                        WHEN TRIM(status_carregamento) = '' THEN 'Na Base'
+                        WHEN LOWER(TRIM(status_carregamento)) = 'nan' THEN 'Na Base'
+                        WHEN status_carregamento ILIKE '%%TR_NSITO%%' THEN 'Em Trânsito'
+                        WHEN status_carregamento ILIKE '%%BASE%%' THEN 'Na Base'
+                        ELSE UPPER(TRIM(status_carregamento))
                     END
-                ) as "Status",
-                COALESCE(
-                    (SELECT TO_CHAR(MAX(r.data_hora), 'DD/MM/YYYY') 
-                     FROM rastreio_cargas r 
-                     WHERE r.numero_nf = REGEXP_REPLACE(c.numero_nf::TEXT, '[^0-9]', '', 'g') 
-                       AND UPPER(TRIM(r.status)) = 'FINALIZADO'), 
-                '-') as "Data Finalizado"
-            FROM cargas c
-            WHERE REGEXP_REPLACE(c.cnpj_consignatario, '[^0-9]', '', 'g') = REGEXP_REPLACE(%s, '[^0-9]', '', 'g')
-            GROUP BY REGEXP_REPLACE(c.numero_nf::TEXT, '[^0-9]', '', 'g')
+                ) as "Status"
+            FROM cargas
+            WHERE REGEXP_REPLACE(cnpj_consignatario, '[^0-9]', '', 'g') = REGEXP_REPLACE(%s, '[^0-9]', '', 'g')
+            GROUP BY REGEXP_REPLACE(numero_nf::TEXT, '[^0-9]', '', 'g')
             ORDER BY "NF" DESC
         """, (str(cnpj_cliente),))
         
